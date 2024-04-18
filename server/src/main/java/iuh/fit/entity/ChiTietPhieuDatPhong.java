@@ -4,8 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import com.nhom17.quanlykaraoke.utils.ConstantUtil;
-
+import iuh.fit.util.ConstantUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
