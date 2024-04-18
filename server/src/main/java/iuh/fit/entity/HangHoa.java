@@ -1,0 +1,126 @@
+package iuh.fit.entity;
+
+import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "HangHoa")
+public class HangHoa {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@Column(columnDefinition = "char(5)")
+	private String maHangHoa;
+
+	@Column(columnDefinition = "nvarchar(30)")
+	private String tenHangHoa;
+
+	@ManyToOne
+	@JoinColumn(name = "maLoaiHangHoa", columnDefinition = "char(6)")
+	private LoaiHangHoa loaiHangHoa;
+
+	@Column(columnDefinition = "int")
+	private int soLuongTon;
+
+	@Column(columnDefinition = "money")
+	private double donGia;
+
+	@Column(columnDefinition = "bit")
+	private boolean trangThai;
+
+	public HangHoa() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public HangHoa(String maHangHoa, String tenHangHoa, LoaiHangHoa loaiHangHoa, int soLuongTon, double donGia,
+			boolean trangThai) {
+		this.maHangHoa = maHangHoa;
+		this.tenHangHoa = tenHangHoa;
+		this.loaiHangHoa = loaiHangHoa;
+		this.soLuongTon = soLuongTon;
+		this.donGia = donGia;
+		this.trangThai = trangThai;
+	}
+
+	public String getMaHangHoa() {
+		return maHangHoa;
+	}
+
+	public void setMaHangHoa(String maHangHoa) {
+		this.maHangHoa = maHangHoa;
+	}
+
+	public LoaiHangHoa getLoaiHangHoa() {
+		return loaiHangHoa;
+	}
+
+	public void setLoaiHangHoa(LoaiHangHoa loaiHangHoa) {
+		this.loaiHangHoa = loaiHangHoa;
+	}
+
+	public String getTenHangHoa() {
+		return tenHangHoa;
+	}
+
+	public void setTenHangHoa(String tenHanghoa) {
+		this.tenHangHoa = tenHanghoa;
+	}
+
+	public int getSoLuongTon() {
+		return soLuongTon;
+	}
+
+	public void setSoLuongTon(int soLuongTon) {
+		this.soLuongTon = soLuongTon;
+	}
+
+	public double getDonGia() {
+		return donGia;
+	}
+
+	public void setDonGia(double donGia) {
+		this.donGia = donGia;
+	}
+
+	public boolean isTrangThai() {
+		return trangThai;
+	}
+
+	public void setTrangThai(boolean trangThai) {
+		this.trangThai = trangThai;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(maHangHoa);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		HangHoa other = (HangHoa) obj;
+		return Objects.equals(maHangHoa, other.maHangHoa);
+	}
+
+	@Override
+	public String toString() {
+		return "HangHoa [maHangHoa=" + maHangHoa + ", tenHanghoa=" + tenHangHoa + ", loaiHangHoa=" + loaiHangHoa
+				+ ", soLuongTon=" + soLuongTon + ", donGia=" + donGia + ", trangThai=" + trangThai + "]";
+	}
+
+}
