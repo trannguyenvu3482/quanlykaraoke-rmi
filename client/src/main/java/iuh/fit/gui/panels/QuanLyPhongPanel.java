@@ -48,9 +48,9 @@ import com.nhom17.quanlykaraoke.bus.LoaiPhongBUS;
 import com.nhom17.quanlykaraoke.bus.PhongBUS;
 import com.nhom17.quanlykaraoke.entities.LoaiPhong;
 import com.nhom17.quanlykaraoke.entities.Phong;
-import com.nhom17.quanlykaraoke.utils.ConstantUtil;
 
 import iuh.fit.common.MyIcon;
+import iuh.fit.util.ConstantUtil;
 
 /**
  * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
@@ -73,7 +73,7 @@ public class QuanLyPhongPanel extends JPanel implements ActionListener {
 	private final JComboBox<String> boxFilterTenLoaiPhong = new JComboBox<String>();
 	private final LoaiPhongBUS lpBUS = new LoaiPhongBUS();
 	private final PhongBUS pBUS = new PhongBUS();
-	private NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+	private NumberFormat format = NumberFormat.getCurrencyInstance(Locale.of("vi", "VN"));
 	private NumberFormatter formatter;
 	private JTable tblPhong;
 	private DefaultTableModel modelPhong;

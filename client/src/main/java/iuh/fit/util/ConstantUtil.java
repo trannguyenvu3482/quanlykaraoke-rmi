@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
+import com.nhom17.quanlykaraoke.entities.NhanVien;
+
 public class ConstantUtil {
 	public static final Color DARKER_BLUE = new Color(3, 4, 94);
 	public static final Color DARK_BLUE = new Color(2, 62, 138);
@@ -33,6 +35,8 @@ public class ConstantUtil {
 	public static final int NIGHTTIME_BEGIN_HOUR = 18;
 	public static final int NIGHTTIME_END_HOUR = 23;
 	public static final double NIGHTTIME_HOUR_PRICE = 60000;
+
+	public static NhanVien currentNhanVien = null;
 
 	public static final double getStandardHourPrice(LocalDateTime time) {
 		if (time.getHour() < NIGHTTIME_BEGIN_HOUR) {

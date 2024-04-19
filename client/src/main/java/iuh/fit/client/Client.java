@@ -28,6 +28,7 @@ public class Client {
 	private static final String URL = "rmi://localhost:8001/";
 
 	public static void main(String[] args) throws Exception {
+		// Setup RMI to get DAOs from server
 
 		// Setup Flatlaf
 		setupFlatLaf();

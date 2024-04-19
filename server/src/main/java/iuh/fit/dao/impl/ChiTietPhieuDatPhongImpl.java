@@ -9,10 +9,11 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import iuh.fit.dao.ChiTietPhieuDatPhongDAO;
 import iuh.fit.entity.ChiTietPhieuDatPhong;
 import iuh.fit.util.HibernateUtil;
 
-public class ChiTietPhieuDatPhongImpl extends UnicastRemoteObject implements iuh.fit.dao.ChiTietPhieuDatPhongDAO{
+public class ChiTietPhieuDatPhongImpl extends UnicastRemoteObject implements ChiTietPhieuDatPhongDAO {
 	/**
 	 * 
 	 */
@@ -21,10 +22,11 @@ public class ChiTietPhieuDatPhongImpl extends UnicastRemoteObject implements iuh
 	 * 
 	 */
 	private SessionFactory factory = null;
-	
+
 	public ChiTietPhieuDatPhongImpl() throws RemoteException {
 		factory = HibernateUtil.getMySessionFactory();
 	}
+
 	public boolean addChiTietPhieuDatPhong(ChiTietPhieuDatPhong chiTietPhieuDatPhong) {
 		Session session = factory.getCurrentSession();
 		Transaction t = session.beginTransaction();

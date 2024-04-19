@@ -45,18 +45,18 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignS;
 
 import com.nhom17.quanlykaraoke.bus.NhanVienBUS;
 import com.nhom17.quanlykaraoke.entities.NhanVien;
-import com.nhom17.quanlykaraoke.gui.panels.QuanLyHangHoaPanel;
-import com.nhom17.quanlykaraoke.gui.panels.QuanLyPhongPanel;
-import com.nhom17.quanlykaraoke.gui.panels.QuanLyThongTinNhanVienPanel;
-import com.nhom17.quanlykaraoke.gui.panels.ThongKePanel;
-import com.nhom17.quanlykaraoke.gui.panels.ThongTinPhanMemPanel;
-import com.nhom17.quanlykaraoke.gui.panels.XemThongTinCaNhanPanel;
-import com.nhom17.quanlykaraoke.utils.ClockUtil;
-import com.nhom17.quanlykaraoke.utils.ConstantUtil;
 
 import iuh.fit.common.MainPanelButton;
 import iuh.fit.common.MyFrame;
 import iuh.fit.common.MyIcon;
+import iuh.fit.gui.panels.QuanLyHangHoaPanel;
+import iuh.fit.gui.panels.QuanLyPhongPanel;
+import iuh.fit.gui.panels.QuanLyThongTinNhanVienPanel;
+import iuh.fit.gui.panels.ThongKePanel;
+import iuh.fit.gui.panels.ThongTinPhanMemPanel;
+import iuh.fit.gui.panels.XemThongTinCaNhanPanel;
+import iuh.fit.util.ClockUtil;
+import iuh.fit.util.ConstantUtil;
 import net.miginfocom.swing.MigLayout;
 import raven.toast.Notifications;
 

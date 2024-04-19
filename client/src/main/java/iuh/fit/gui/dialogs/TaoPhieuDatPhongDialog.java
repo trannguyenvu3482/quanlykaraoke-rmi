@@ -25,8 +25,8 @@ import com.nhom17.quanlykaraoke.bus.PhieuDatPhongBUS;
 import com.nhom17.quanlykaraoke.entities.KhachHang;
 import com.nhom17.quanlykaraoke.entities.PhieuDatPhong;
 import com.nhom17.quanlykaraoke.entities.Phong;
-import com.nhom17.quanlykaraoke.utils.ConstantUtil;
 
+import iuh.fit.util.ConstantUtil;
 import raven.toast.Notifications;
 import raven.toast.Notifications.Location;
 

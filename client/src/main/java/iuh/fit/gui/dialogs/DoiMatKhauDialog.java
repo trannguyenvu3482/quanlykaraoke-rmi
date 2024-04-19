@@ -20,8 +20,9 @@ import javax.swing.JPasswordField;
 
 import com.nhom17.quanlykaraoke.bus.NhanVienBUS;
 import com.nhom17.quanlykaraoke.entities.NhanVien;
-import com.nhom17.quanlykaraoke.utils.ConstantUtil;
-import com.nhom17.quanlykaraoke.utils.PasswordUtil;
+
+import iuh.fit.util.ConstantUtil;
+import iuh.fit.util.PasswordUtil;
 
 public class DoiMatKhauDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
@@ -64,7 +65,7 @@ public class DoiMatKhauDialog extends JDialog implements ActionListener {
 				} else if (!txtNewPass.getText().equalsIgnoreCase(txtComfirmPass.getText())) {
 					JOptionPane.showMessageDialog(null, "Mật khẩu mới không đồng nhất!", "Thông báo",
 							JOptionPane.ERROR_MESSAGE);
-				} else {	
+				} else {
 					nhanVien.setMatKhau(PasswordUtil.encrypt(txtNewPass.getText()));
 					nvBUS.updateNV(nhanVien);
 					JOptionPane.showMessageDialog(null, "Đổi mật khẩu thành công", "Thông báo",

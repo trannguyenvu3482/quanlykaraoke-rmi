@@ -36,10 +36,10 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 
 import com.nhom17.quanlykaraoke.bus.NhanVienBUS;
 import com.nhom17.quanlykaraoke.entities.NhanVien;
-import com.nhom17.quanlykaraoke.utils.ConstantUtil;
-import com.nhom17.quanlykaraoke.utils.PasswordUtil;
 
 import iuh.fit.common.MyIcon;
+import iuh.fit.util.ConstantUtil;
+import iuh.fit.util.PasswordUtil;
 import net.miginfocom.swing.MigLayout;
 
 /**
