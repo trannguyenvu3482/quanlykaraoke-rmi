@@ -24,4 +24,6 @@ public interface PhongDAO extends Remote {
 	public boolean isRoomEmpty(Phong p) throws RemoteException;
 
 	public boolean updatePhong(Phong p) throws RemoteException;
+	
+	public Phong getPhong(String maPhong) throws RemoteException;
 }
