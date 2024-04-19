@@ -46,7 +46,7 @@ class LoaiHangHoaTest {
 	}
 	
 	@AfterAll
-	public void cleanup() {
+	public static void cleanup() {
 		loaiHangHoaDAO = null;
 	}
 }
