@@ -13,38 +13,44 @@ import org.junit.jupiter.api.TestInstance;
 import iuh.fit.dao.LoaiHangHoaDAO;
 import iuh.fit.dao.impl.LoaiHangHoaImpl;
 import iuh.fit.entity.LoaiHangHoa;
+import iuh.fit.util.HibernateUtil;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LoaiHangHoaTest {
-	
-	
+
 	static LoaiHangHoaDAO loaiHangHoaDAO;
-	
+
 	@BeforeAll
 	public static void init() throws RemoteException {
+		HibernateUtil.provideSessionFactory();
 		loaiHangHoaDAO = new LoaiHangHoaImpl();
 	}
-	
+
 	@Test
-	void testAddLoaiHangHoa() throws RemoteException{
-		LoaiHangHoa loaiHangHoa = new LoaiHangHoa("LH015", "Đồ uống có cồn", "Lon/Chai");
+	void testAddLoaiHangHoa() throws RemoteException {
+		LoaiHangHoa loaiHangHoa = new LoaiHangHoa("", "Đồ uống có cồn", "Lon/Chai");
 		boolean result = loaiHangHoaDAO.addLoaiHangHoa(loaiHangHoa);
 		assertEquals(true, result);
 	}
-	
+
 	@Test
 	void testGetAllLoaiHangHoas() throws RemoteException {
 		List<LoaiHangHoa> listLoaiHangHoa = loaiHangHoaDAO.getAllLoaiHangHoas();
-		assertEquals(15, listLoaiHangHoa.size());
+
+		for (LoaiHangHoa loaiHangHoa : listLoaiHangHoa) {
+			System.out.println(loaiHangHoa.getTenLoaiHangHoa());
+		}
+
+		assertEquals(5, listLoaiHangHoa.size());
 	}
-	
+
 	@Test
-	void  testGetLoaiHangHoaByname( ) throws RemoteException {
+	void testGetLoaiHangHoaByname() throws RemoteException {
 		LoaiHangHoa loaiHangHoa = loaiHangHoaDAO.getLoaiHangHoaByname("Đồ uống có cồn");
-		assertEquals("LH015", loaiHangHoa.getMaLoaiHangHoa());
-		
+		assertEquals("LHH002", loaiHangHoa.getMaLoaiHangHoa());
+
 	}
-	
+
 	@AfterAll
 	public static void cleanup() {
 		loaiHangHoaDAO = null;

@@ -23,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -43,12 +44,12 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignS;
 
-import com.nhom17.quanlykaraoke.bus.NhanVienBUS;
-import com.nhom17.quanlykaraoke.entities.NhanVien;
-
+import iuh.fit.client.Client;
 import iuh.fit.common.MainPanelButton;
 import iuh.fit.common.MyFrame;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.NhanVienDAO;
+import iuh.fit.entity.NhanVien;
 import iuh.fit.gui.panels.QuanLyHangHoaPanel;
 import iuh.fit.gui.panels.QuanLyPhongPanel;
 import iuh.fit.gui.panels.QuanLyThongTinNhanVienPanel;
@@ -126,7 +127,7 @@ public class QuanLyGUI extends MyFrame implements ActionListener {
 	private final Component verticalStrut = Box.createVerticalStrut(20);
 
 	// VARIABLES
-	private NhanVienBUS nvBUS = new NhanVienBUS();
+	private NhanVienDAO nvDAO = (NhanVienDAO) Client.getDAO("NhanVienDAO");
 	private NhanVien currentNhanVien = null;
 	private boolean isSidebarMinimized = false;
 	private final int screenWidth = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
@@ -134,9 +135,10 @@ public class QuanLyGUI extends MyFrame implements ActionListener {
 	private LogoutListener logoutListener;
 	private final Component verticalStrut_1_1_1_1 = Box.createVerticalStrut(20);
 
-	public QuanLyGUI(String maNV) {
+	@SuppressWarnings("deprecation")
+	public QuanLyGUI(String maNV) throws RemoteException {
 		// Init
-		this.currentNhanVien = nvBUS.getNhanVien(maNV);
+		this.currentNhanVien = nvDAO.getNhanVien(maNV);
 
 		ConstantUtil.currentNhanVien = this.currentNhanVien;
 

@@ -1,5 +1,6 @@
 package iuh.fit.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -9,7 +10,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "LoaiHangHoa")
-public class LoaiHangHoa {
+public class LoaiHangHoa implements Serializable {
 
 	/**
 	 * 
@@ -27,7 +28,7 @@ public class LoaiHangHoa {
 	private String donViTinh;
 
 	public LoaiHangHoa() {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 
 	public LoaiHangHoa(String maLoaiHangHoa, String tenLoaihangHoa) {

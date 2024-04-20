@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -23,13 +24,13 @@ import javax.swing.border.TitledBorder;
 
 import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 
-import com.nhom17.quanlykaraoke.bus.ChiTietPhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.bus.PhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.bus.PhongBUS;
-import com.nhom17.quanlykaraoke.entities.ChiTietPhieuDatPhong;
-import com.nhom17.quanlykaraoke.entities.Phong;
-
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.ChiTietPhieuDatPhongDAO;
+import iuh.fit.dao.PhieuDatPhongDAO;
+import iuh.fit.dao.PhongDAO;
+import iuh.fit.entity.ChiTietPhieuDatPhong;
+import iuh.fit.entity.Phong;
 import iuh.fit.gui.dialogs.ChuyenPhongDialog;
 import iuh.fit.gui.dialogs.QuanLyDichVuDialog;
 import iuh.fit.gui.dialogs.TaoPhieuDatPhongDialog;
@@ -65,9 +66,9 @@ public class RoomPanel extends JPanel implements MouseListener {
 	private final JLabel lblStatus = new JLabel("Trạng thái: Trống");
 
 	// VARIABLES
-	private PhongBUS pBUS = new PhongBUS();
-	private PhieuDatPhongBUS pdpBUS = new PhieuDatPhongBUS();
-	private ChiTietPhieuDatPhongBUS ctpdpBUS = new ChiTietPhieuDatPhongBUS();
+	private PhongDAO pDAO = (PhongDAO) Client.getDAO("PhongDAO");
+	private PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
+	private ChiTietPhieuDatPhongDAO ctpdpDAO = (ChiTietPhieuDatPhongDAO) Client.getDAO("ChiTietPhieuDatPhongDAO");
 	private String roomName = "Phòng ";
 	private boolean isSelected = false;
 	private boolean isBooked = false;
@@ -78,11 +79,11 @@ public class RoomPanel extends JPanel implements MouseListener {
 	 *
 	 * @param p the Phong
 	 */
-	public RoomPanel(Phong p) {
+	public RoomPanel(Phong p) throws RemoteException {
 		// Set variables
 		this.p = p;
 		this.roomName = roomName.concat(p.getMaPhong());
-		this.isBooked = pBUS.isRoomEmpty(p);
+		this.isBooked = pDAO.isRoomEmpty(p);
 
 		// Create the UI
 		initUI();
@@ -116,21 +117,24 @@ public class RoomPanel extends JPanel implements MouseListener {
 				JOptionPane.YES_NO_OPTION);
 
 		if (result == JOptionPane.YES_OPTION) {
-			ChiTietPhieuDatPhong ctpdp = new ChiTietPhieuDatPhongBUS()
-					.getChiTietPhieuDatPhongByActiveMaPhong(p.getMaPhong());
+			ChiTietPhieuDatPhong ctpdp;
+			try {
+				ctpdp = ((ChiTietPhieuDatPhongDAO) Client.getDAO("ChiTietPhieuDatPhongDAO"))
+						.getChiTietPhieuDatPhongByActiveMaPhong(p.getMaPhong());
+				if (ctpdp.getThoiGianBatDau().until(LocalDateTime.now(), ChronoUnit.MINUTES) > 15) {
+					System.out.println("FINISH!");
+					if (pdpDAO.finishPhieuDatPhong(p.getMaPhong(), 0, 0)) {
+						return true;
+					}
 
-			if (ctpdp.getThoiGianBatDau().until(LocalDateTime.now(), ChronoUnit.MINUTES) > 15) {
-				System.out.println("FINISH!");
-				if (pdpBUS.finishPhieuDatPhong(p.getMaPhong(), 0, 0)) {
-					return true;
+				} else {
+					Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+							"Chỉ có thể chuyển phòng sau 15 phút kể từ lúc bắt đầu");
+					return false;
 				}
-
-			} else {
-				Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
-						"Chỉ có thể chuyển phòng sau 15 phút kể từ lúc bắt đầu");
-				return false;
+			} catch (RemoteException e) {
+				e.printStackTrace();
 			}
-
 		}
 
 		return false;
@@ -154,11 +158,15 @@ public class RoomPanel extends JPanel implements MouseListener {
 
 	public boolean addDichVu(DialogClosedListener listener) {
 		SwingUtilities.invokeLater(() -> {
-			if (ctpdpBUS.getChiTietPhieuDatPhongByActiveMaPhong(p.getMaPhong()) == null) {
-				Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
-						"Phòng này đã hoàn tất, vui lòng làm mới");
+			try {
+				if (ctpdpDAO.getChiTietPhieuDatPhongByActiveMaPhong(p.getMaPhong()) == null) {
+					Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+							"Phòng này đã hoàn tất, vui lòng làm mới");
 
-				return;
+					return;
+				}
+			} catch (RemoteException e) {
+				e.printStackTrace();
 			}
 
 			QuanLyDichVuDialog dialog = new QuanLyDichVuDialog(p);
@@ -198,7 +206,7 @@ public class RoomPanel extends JPanel implements MouseListener {
 		mainPanel.setBackground(ConstantUtil.MAIN_LIGHT_BLUE);
 		infoPanel.setBackground(ConstantUtil.MAIN_LIGHT_BLUE);
 
-		this.isSelected = true;
+		this.setSelected(true);
 	}
 
 	/**
@@ -208,7 +216,7 @@ public class RoomPanel extends JPanel implements MouseListener {
 		mainPanel.setBackground(Color.white);
 		infoPanel.setBackground(Color.white);
 
-		this.isSelected = false;
+		this.setSelected(false);
 	}
 
 	/**
@@ -319,6 +327,20 @@ public class RoomPanel extends JPanel implements MouseListener {
 	public void mouseExited(MouseEvent e) {
 		CardLayout cl = (CardLayout) panel.getLayout();
 		cl.show(panel, "mainPanel");
+	}
+
+	/**
+	 * @return the isSelected
+	 */
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	/**
+	 * @param isSelected the isSelected to set
+	 */
+	public void setSelected(boolean isSelected) {
+		this.isSelected = isSelected;
 	}
 
 }

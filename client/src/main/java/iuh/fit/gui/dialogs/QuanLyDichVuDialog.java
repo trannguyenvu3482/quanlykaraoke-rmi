@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,14 +41,14 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignN;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 
-import com.nhom17.quanlykaraoke.bus.ChiTietDichVuBUS;
-import com.nhom17.quanlykaraoke.bus.ChiTietPhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.bus.HangHoaBUS;
-import com.nhom17.quanlykaraoke.entities.ChiTietDichVu;
-import com.nhom17.quanlykaraoke.entities.PhieuDatPhong;
-import com.nhom17.quanlykaraoke.entities.Phong;
-
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.ChiTietDichVuDAO;
+import iuh.fit.dao.ChiTietPhieuDatPhongDAO;
+import iuh.fit.dao.HangHoaDAO;
+import iuh.fit.entity.ChiTietDichVu;
+import iuh.fit.entity.PhieuDatPhong;
+import iuh.fit.entity.Phong;
 import iuh.fit.util.ConstantUtil;
 import iuh.fit.util.MoneyFormatUtil;
 import raven.toast.Notifications;
@@ -79,10 +80,10 @@ public class QuanLyDichVuDialog extends JDialog implements ActionListener {
 	// VARIABLES
 	private Phong p;
 	private PhieuDatPhong pdp;
-	private HangHoaBUS hhBUS = new HangHoaBUS();
-	private ChiTietDichVuBUS ctdvBUS = new ChiTietDichVuBUS();
+	private HangHoaDAO hhDAO = (HangHoaDAO) Client.getDAO("HangHoaDAO");
+	private ChiTietDichVuDAO ctdvDAO = (ChiTietDichVuDAO) Client.getDAO("ChiTietDichVuDAO");
+	private ChiTietPhieuDatPhongDAO ctpdpDAO = (ChiTietPhieuDatPhongDAO) Client.getDAO("ChiTietPhieuDatPhongDAO");
 
-	private ChiTietPhieuDatPhongBUS ctpdpBUS = new ChiTietPhieuDatPhongBUS();
 	private int stt = 1;
 	private List<ChiTietDichVu> listCTDVCurrent = new ArrayList<ChiTietDichVu>();
 	private List<ChiTietDichVu> listCTDVPending = new ArrayList<ChiTietDichVu>();
@@ -304,21 +305,25 @@ public class QuanLyDichVuDialog extends JDialog implements ActionListener {
 
 					return;
 				} else {
-					ChiTietDichVu c = new ChiTietDichVu(pdp, hhBUS.getHangHoa(modelLeft.getValueAt(row, 0).toString()),
-							p, Integer.valueOf(result));
+					ChiTietDichVu c;
+					try {
+						c = new ChiTietDichVu(pdp, hhDAO.getHangHoa(modelLeft.getValueAt(row, 0).toString()), p,
+								Integer.valueOf(result));
+						listCTDVPending.add(c);
 
-					listCTDVPending.add(c);
+						Object[] rowData = { stt, c.getHangHoa().getTenHangHoa(), c.getHangHoa().getDonGia(),
+								c.getSoLuong(), MoneyFormatUtil.format(c.getHangHoa().getDonGia() * c.getSoLuong()) };
 
-					Object[] rowData = { stt, c.getHangHoa().getTenHangHoa(), c.getHangHoa().getDonGia(),
-							c.getSoLuong(), MoneyFormatUtil.format(c.getHangHoa().getDonGia() * c.getSoLuong()) };
+						modelLeft.setValueAt(
+								Integer.valueOf(modelLeft.getValueAt(row, 4).toString()) - Integer.valueOf(result),
+								tblLeft.getSelectedRow(), 4);
 
-					modelLeft.setValueAt(
-							Integer.valueOf(modelLeft.getValueAt(row, 4).toString()) - Integer.valueOf(result),
-							tblLeft.getSelectedRow(), 4);
+						modelRight.addRow(rowData);
 
-					modelRight.addRow(rowData);
-
-					this.stt++;
+						this.stt++;
+					} catch (NumberFormatException | RemoteException e1) {
+						e1.printStackTrace();
+					}
 
 				}
 
@@ -420,15 +425,30 @@ public class QuanLyDichVuDialog extends JDialog implements ActionListener {
 			dispose();
 		} else if (o.equals(btnXacNhan)) {
 			listCTDVPending.forEach((ctdv) -> {
-				ctdvBUS.addChiTietDichVu(ctdv);
+				try {
+					ctdvDAO.addChiTietDichVu(ctdv);
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			});
 
 			listCTDVCurrent.forEach((ctdv) -> {
-				ctdvBUS.updateChiTietDichVu(ctdv);
+				try {
+					ctdvDAO.updateChiTietDichVu(ctdv);
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			});
 
 			listCTDVDelete.forEach((ctdv) -> {
-				ctdvBUS.deleteChiTietDichVu(ctdv);
+				try {
+					ctdvDAO.deleteChiTietDichVu(ctdv);
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			});
 
 			Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
@@ -507,12 +527,17 @@ public class QuanLyDichVuDialog extends JDialog implements ActionListener {
 		// TODO Auto-generated method stub
 		modelLeft.setRowCount(0);
 
-		hhBUS.getAllHangHoas().forEach((hh) -> {
+		try {
+			hhDAO.getAllHangHoas().forEach((hh) -> {
 
-			Object[] rowData = { hh.getMaHangHoa(), hh.getTenHangHoa(), hh.getLoaiHangHoa().getTenLoaiHangHoa(),
-					MoneyFormatUtil.format(hh.getDonGia()), hh.getSoLuongTon(), hh.getLoaiHangHoa().getDonViTinh() };
-			modelLeft.addRow(rowData);
-		});
+				Object[] rowData = { hh.getMaHangHoa(), hh.getTenHangHoa(), hh.getLoaiHangHoa().getTenLoaiHangHoa(),
+						MoneyFormatUtil.format(hh.getDonGia()), hh.getSoLuongTon(),
+						hh.getLoaiHangHoa().getDonViTinh() };
+				modelLeft.addRow(rowData);
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -552,18 +577,21 @@ public class QuanLyDichVuDialog extends JDialog implements ActionListener {
 		modelRight.setRowCount(0);
 
 		// Logic
-		pdp = ctpdpBUS.getChiTietPhieuDatPhongByActiveMaPhong(p.getMaPhong()).getPhieuDatPhong();
+		try {
+			pdp = ctpdpDAO.getChiTietPhieuDatPhongByActiveMaPhong(p.getMaPhong()).getPhieuDatPhong();
 
-		listCTDVCurrent = ctdvBUS.getChiTietDichVuByMaPDPAndMaPhong(pdp.getMaPhieuDatPhong(), p.getMaPhong());
+			listCTDVCurrent = ctdvDAO.getChiTietDichVuByMaPDPAndMaPhong(pdp.getMaPhieuDatPhong(), p.getMaPhong());
 
-		for (ChiTietDichVu c : listCTDVCurrent) {
-			Object[] rowData = { stt, c.getHangHoa().getTenHangHoa(), c.getHangHoa().getDonGia(), c.getSoLuong(),
-					MoneyFormatUtil.format(c.getHangHoa().getDonGia() * c.getSoLuong()) };
+			for (ChiTietDichVu c : listCTDVCurrent) {
+				Object[] rowData = { stt, c.getHangHoa().getTenHangHoa(), c.getHangHoa().getDonGia(), c.getSoLuong(),
+						MoneyFormatUtil.format(c.getHangHoa().getDonGia() * c.getSoLuong()) };
 
-			modelRight.addRow(rowData);
+				modelRight.addRow(rowData);
 
-			this.stt++;
+				this.stt++;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
 	}
 }

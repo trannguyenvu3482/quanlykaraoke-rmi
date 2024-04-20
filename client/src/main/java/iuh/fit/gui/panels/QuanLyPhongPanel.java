@@ -12,6 +12,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.rmi.RemoteException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -44,12 +45,12 @@ import javax.swing.text.NumberFormatter;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignB;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 
-import com.nhom17.quanlykaraoke.bus.LoaiPhongBUS;
-import com.nhom17.quanlykaraoke.bus.PhongBUS;
-import com.nhom17.quanlykaraoke.entities.LoaiPhong;
-import com.nhom17.quanlykaraoke.entities.Phong;
-
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.LoaiPhongDAO;
+import iuh.fit.dao.PhongDAO;
+import iuh.fit.entity.LoaiPhong;
+import iuh.fit.entity.Phong;
 import iuh.fit.util.ConstantUtil;
 
 /**
@@ -71,8 +72,8 @@ public class QuanLyPhongPanel extends JPanel implements ActionListener {
 	private final JComboBox<String> boxFilterTrangThai = new JComboBox<String>();
 	private final JComboBox<String> boxFilterKichThuoc = new JComboBox<String>();
 	private final JComboBox<String> boxFilterTenLoaiPhong = new JComboBox<String>();
-	private final LoaiPhongBUS lpBUS = new LoaiPhongBUS();
-	private final PhongBUS pBUS = new PhongBUS();
+	private final LoaiPhongDAO lpDAO = (LoaiPhongDAO) Client.getDAO("LoaiPhongDAO");
+	private final PhongDAO pDAO = (PhongDAO) Client.getDAO("PhongDAO");
 	private NumberFormat format = NumberFormat.getCurrencyInstance(Locale.of("vi", "VN"));
 	private NumberFormatter formatter;
 	private JTable tblPhong;
@@ -414,15 +415,21 @@ public class QuanLyPhongPanel extends JPanel implements ActionListener {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	Locale lc = new Locale("vi", "VN");
 	NumberFormat nf = NumberFormat.getCurrencyInstance(lc);
 
 	private void refreshTable() {
 		modelPhong.setRowCount(0);
-		for (Phong p : pBUS.getAllPhongs()) {
-			Object[] data = { p.getMaPhong(), p.getLoaiPhong().getKichThuoc(), p.getLoaiPhong().getTenLoaiPhong(),
-					nf.format(p.getLoaiPhong().getPhuPhi()), p.isTrangThai() ? "Còn hoạt động" : "Ngưng hoạt động" };
-			modelPhong.addRow(data);
+		try {
+			for (Phong p : pDAO.getAllPhongs()) {
+				Object[] data = { p.getMaPhong(), p.getLoaiPhong().getKichThuoc(), p.getLoaiPhong().getTenLoaiPhong(),
+						nf.format(p.getLoaiPhong().getPhuPhi()),
+						p.isTrangThai() ? "Còn hoạt động" : "Ngưng hoạt động" };
+				modelPhong.addRow(data);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -447,36 +454,58 @@ public class QuanLyPhongPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if (o.equals(btnThem)) {
-			LoaiPhong lp = lpBUS.getLoaiPhong(cbTenLP.getSelectedItem().toString(),
-					Integer.parseInt(cbKichThuoc.getSelectedItem().toString()));
-			Phong p = new Phong("", lp, trangThai(cbTrangThai.getSelectedItem().toString()));
-			pBUS.addPhong(p);
-			refreshTable();
-			clearFields();
-			JOptionPane.showMessageDialog(this, "Thêm phòng mới thành công!");
+			LoaiPhong lp;
+			try {
+				lp = lpDAO.getLoaiPhong(cbTenLP.getSelectedItem().toString(),
+						Integer.parseInt(cbKichThuoc.getSelectedItem().toString()));
+				Phong p = new Phong("", lp, trangThai(cbTrangThai.getSelectedItem().toString()));
+				pDAO.addPhong(p);
+				refreshTable();
+				clearFields();
+				JOptionPane.showMessageDialog(this, "Thêm phòng mới thành công!");
+			} catch (NumberFormatException | RemoteException e1) {
+				e1.printStackTrace();
+			}
 		} else if (o.equals(btnClearFields)) {
 			clearFields();
 		} else if (o.equals(btnSua)) {
 			if (tblPhong.getSelectedRow() != -1) {
-				LoaiPhong lp = lpBUS.getLoaiPhong(cbTenLP.getSelectedItem().toString(),
-						Integer.parseInt(cbKichThuoc.getSelectedItem().toString()));
-				Phong p = new Phong(txtPhong.getText(), lp, trangThai(cbTrangThai.getSelectedItem().toString()));
-				pBUS.updatePhong(p);
-				refreshTable();
-				clearFields();
+				LoaiPhong lp;
+				try {
+					lp = lpDAO.getLoaiPhong(cbTenLP.getSelectedItem().toString(),
+							Integer.parseInt(cbKichThuoc.getSelectedItem().toString()));
+					Phong p = new Phong(txtPhong.getText(), lp, trangThai(cbTrangThai.getSelectedItem().toString()));
+					pDAO.updatePhong(p);
+					refreshTable();
+					clearFields();
+				} catch (NumberFormatException | RemoteException e1) {
+					e1.printStackTrace();
+				}
 
 			} else {
 				JOptionPane.showMessageDialog(this, "Vui lòng chọn phòng muốn cập nhật");
 			}
 		} else if (o.equals(cbKichThuoc)) {
-			LoaiPhong lp = lpBUS.getLoaiPhong(cbTenLP.getSelectedItem().toString(),
-					Integer.parseInt(cbKichThuoc.getSelectedItem().toString()));
-			txtPhuPhi.setValue(lp.getPhuPhi());
+			LoaiPhong lp;
+			try {
+				lp = lpDAO.getLoaiPhong(cbTenLP.getSelectedItem().toString(),
+						Integer.parseInt(cbKichThuoc.getSelectedItem().toString()));
+				txtPhuPhi.setValue(lp.getPhuPhi());
+			} catch (NumberFormatException | RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 		} else if (o.equals(cbTenLP)) {
-			LoaiPhong lp = lpBUS.getLoaiPhong(cbTenLP.getSelectedItem().toString(),
-					Integer.parseInt(cbKichThuoc.getSelectedItem().toString()));
-			txtPhuPhi.setValue(lp.getPhuPhi());
+			LoaiPhong lp;
+			try {
+				lp = lpDAO.getLoaiPhong(cbTenLP.getSelectedItem().toString(),
+						Integer.parseInt(cbKichThuoc.getSelectedItem().toString()));
+				txtPhuPhi.setValue(lp.getPhuPhi());
+			} catch (NumberFormatException | RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} else if (o.equals(boxFilterKichThuoc)) {
 			if (boxFilterKichThuoc.getSelectedIndex() != 0) {
 				// Handle table filter

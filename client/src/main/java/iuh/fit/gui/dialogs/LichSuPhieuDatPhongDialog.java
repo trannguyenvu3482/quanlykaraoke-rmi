@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.rmi.RemoteException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -16,7 +17,8 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import com.nhom17.quanlykaraoke.bus.PhieuDatPhongBUS;
+import iuh.fit.client.Client;
+import iuh.fit.dao.PhieuDatPhongDAO;
 
 /**
  * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
@@ -32,7 +34,7 @@ public class LichSuPhieuDatPhongDialog extends JDialog {
 	private JTextField txtSearch;
 
 	// VARIABLES
-	private PhieuDatPhongBUS pdpBUS = new PhieuDatPhongBUS();
+	private PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
 
 	/**
 	 * 
@@ -107,11 +109,16 @@ public class LichSuPhieuDatPhongDialog extends JDialog {
 	private void refreshTable() {
 		model.setRowCount(0);
 
-		pdpBUS.getAllPhieuDatPhongs().forEach((pdp) -> {
-			Object[] rowData = { pdp.getMaPhieuDatPhong(), pdp.getNhanVien().getHoTen(), pdp.getKhachHang().getHoTen(),
-					pdp.getKhachHang().getSoDienThoai() };
+		try {
+			pdpDAO.getAllPhieuDatPhongs().forEach((pdp) -> {
+				Object[] rowData = { pdp.getMaPhieuDatPhong(), pdp.getNhanVien().getHoTen(),
+						pdp.getKhachHang().getHoTen(), pdp.getKhachHang().getSoDienThoai() };
 
-			model.addRow(rowData);
-		});
+				model.addRow(rowData);
+			});
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

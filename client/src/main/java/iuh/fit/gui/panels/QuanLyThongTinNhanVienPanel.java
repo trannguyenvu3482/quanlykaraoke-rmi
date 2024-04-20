@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
@@ -48,12 +49,13 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignB;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignF;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignK;
 
-import com.nhom17.quanlykaraoke.bus.ChucVuBUS;
-import com.nhom17.quanlykaraoke.bus.NhanVienBUS;
-import com.nhom17.quanlykaraoke.entities.NhanVien;
 import com.toedter.calendar.JDateChooser;
 
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.ChucVuDAO;
+import iuh.fit.dao.NhanVienDAO;
+import iuh.fit.entity.NhanVien;
 import iuh.fit.gui.dialogs.DoiMatKhauDialog;
 import iuh.fit.util.ConstantUtil;
 import iuh.fit.util.DateTimeFormatUtil;
@@ -95,13 +97,14 @@ public class QuanLyThongTinNhanVienPanel extends JPanel implements ActionListene
 	private List<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(5);
 
 	// VARIABLES
-	private final NhanVienBUS nvBUS = new NhanVienBUS();
-	private ChucVuBUS cvBUS = new ChucVuBUS();
+	private final NhanVienDAO nvDAO = (NhanVienDAO) Client.getDAO("NhanVienDAO");
+	private ChucVuDAO cvDAO = (ChucVuDAO) Client.getDAO("ChucVuDAO");
 	private final JButton btnDoiMatKhau = new JButton("");
 
 	/**
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	public QuanLyThongTinNhanVienPanel() {
 		setSize(1600, 1100);
 		setLayout(null);
@@ -366,11 +369,11 @@ public class QuanLyThongTinNhanVienPanel extends JPanel implements ActionListene
 						byte[] avtToByte;
 						try {
 							avtToByte = Files.readAllBytes(newAvt.toPath());
-							NhanVien nv = nvBUS
+							NhanVien nv = nvDAO
 									.getNhanVien(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 0).toString());
 							nv.setAnhDaiDien(avtToByte);
-							nvBUS.updateNV(nv);
-							refreshTable(nvBUS.getAllNhanViens());
+							nvDAO.updateNV(nv);
+							refreshTable(nvDAO.getAllNhanViens());
 							clearFields();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
@@ -380,7 +383,12 @@ public class QuanLyThongTinNhanVienPanel extends JPanel implements ActionListene
 				}
 			}
 		});
-		refreshTable(nvBUS.getAllNhanViens());
+		try {
+			refreshTable(nvDAO.getAllNhanViens());
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		txtSearchNV.addKeyListener(new KeyAdapter() {
 
@@ -437,19 +445,24 @@ public class QuanLyThongTinNhanVienPanel extends JPanel implements ActionListene
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (tblNhanVien.getSelectedRow() != -1) {
-					NhanVien nv = nvBUS
-							.getNhanVien(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 0).toString());
-					txtSDT.setText(nv.getSoDienThoai());
-					txtTenNV.setText(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 1).toString());
-					cbGioiTinh.setSelectedIndex(
-							numGT(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 2).toString()));
-					cbChucVu.setSelectedItem(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 4).toString());
-					txtCCCD.setText(nv.getCCCD());
-					cbTrangThai.setSelectedItem(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 5).toString());
-					txtNgaySinh.setDate(DateTimeFormatUtil.formatLocalDateToDate(
-							LocalDate.parse(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 3).toString(),
-									DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
-					avt.setIcon(ConstantUtil.byteArrayToImageIcon(nv.getAnhDaiDien()));
+					NhanVien nv;
+					try {
+						nv = nvDAO.getNhanVien(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 0).toString());
+						txtSDT.setText(nv.getSoDienThoai());
+						txtTenNV.setText(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 1).toString());
+						cbGioiTinh.setSelectedIndex(
+								numGT(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 2).toString()));
+						cbChucVu.setSelectedItem(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 4).toString());
+						txtCCCD.setText(nv.getCCCD());
+						cbTrangThai
+								.setSelectedItem(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 5).toString());
+						txtNgaySinh.setDate(DateTimeFormatUtil.formatLocalDateToDate(
+								LocalDate.parse(modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 3).toString(),
+										DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+						avt.setIcon(ConstantUtil.byteArrayToImageIcon(nv.getAnhDaiDien()));
+					} catch (RemoteException e1) {
+						e1.printStackTrace();
+					}
 				}
 			}
 
@@ -542,22 +555,30 @@ public class QuanLyThongTinNhanVienPanel extends JPanel implements ActionListene
 					Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
 							"Ngày sinh phải có định dạng dd/MM/yyyy và phải đủ 18 tuổi");
 				} else {
-					List<NhanVien> ls = nvBUS.getAllNhanViens();
+					List<NhanVien> ls;
+					try {
+						ls = nvDAO.getAllNhanViens();
 
-					NhanVien nv = new NhanVien(txtTenNV.getText(), cbGioiTinh.getSelectedIndex(),
-							PasswordUtil.encrypt("1"),
-							txtNgaySinh.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-							cvBUS.getChucVuByName(cbChucVu.getSelectedItem().toString()), txtSDT.getText(),
-							txtCCCD.getText(), cbGioiTinh.getSelectedIndex() == 0 ? ConstantUtil.getDefaultMaleAvatar()
-									: ConstantUtil.getDefaultFemaleAvatar());
+						NhanVien nv = new NhanVien(txtTenNV.getText(), cbGioiTinh.getSelectedIndex(),
+								PasswordUtil.encrypt("1"),
+								txtNgaySinh.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+								cvDAO.getChucVuByName(cbChucVu.getSelectedItem().toString()), txtSDT.getText(),
+								txtCCCD.getText(),
+								cbGioiTinh.getSelectedIndex() == 0 ? ConstantUtil.getDefaultMaleAvatar()
+										: ConstantUtil.getDefaultFemaleAvatar());
 
-					if (checkTonTai(nv, ls)) {
-						nvBUS.addNhanVien(nv);
-						refreshTable(ls);
-						clearFields();
-						Notifications.getInstance().show(Type.SUCCESS, Location.BOTTOM_RIGHT, "Thêm thành công!");
-					} else {
-						Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT, "Nhân viên đã tồn tại!");
+						if (checkTonTai(nv, ls)) {
+							nvDAO.addNhanVien(nv);
+							refreshTable(ls);
+							clearFields();
+							Notifications.getInstance().show(Type.SUCCESS, Location.BOTTOM_RIGHT, "Thêm thành công!");
+						} else {
+							Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+									"Nhân viên đã tồn tại!");
+						}
+					} catch (RemoteException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
 				}
 			}
@@ -585,25 +606,31 @@ public class QuanLyThongTinNhanVienPanel extends JPanel implements ActionListene
 						Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
 								"Ngày sinh phải có định dạng dd/MM/yyyy và phải đủ 18 tuổi");
 					} else {
-						List<NhanVien> ls = nvBUS.getAllNhanViens();
-						String maNV = modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 0).toString();
+						List<NhanVien> ls;
+						try {
+							ls = nvDAO.getAllNhanViens();
+							String maNV = modelNhanVien.getValueAt(tblNhanVien.getSelectedRow(), 0).toString();
 
-						NhanVien nv = new NhanVien(maNV, txtTenNV.getText(), cbGioiTinh.getSelectedIndex(),
-								PasswordUtil.encrypt("1"),
-								txtNgaySinh.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
-								cvBUS.getChucVuByName(cbChucVu.getSelectedItem().toString()), txtSDT.getText(),
-								txtCCCD.getText(), nvBUS.getNhanVien(maNV).getAnhDaiDien(),
-								cbTrangThai.getSelectedIndex() == 1 ? true : false);
+							NhanVien nv = new NhanVien(maNV, txtTenNV.getText(), cbGioiTinh.getSelectedIndex(),
+									PasswordUtil.encrypt("1"),
+									txtNgaySinh.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+									cvDAO.getChucVuByName(cbChucVu.getSelectedItem().toString()), txtSDT.getText(),
+									txtCCCD.getText(), nvDAO.getNhanVien(maNV).getAnhDaiDien(),
+									cbTrangThai.getSelectedIndex() == 1 ? true : false);
 
-						if (checkTonTai(nv, ls)) {
-							nvBUS.updateNV(nv);
-							refreshTable(ls);
-							clearFields();
-							Notifications.getInstance().show(Type.SUCCESS, Location.BOTTOM_RIGHT,
-									"Cập nhật thành công!");
-						} else {
-							Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
-									"Căn cước công dân hoặc số điện thoại này đã tồn tại!");
+							if (checkTonTai(nv, ls)) {
+								nvDAO.updateNV(nv);
+								refreshTable(ls);
+								clearFields();
+								Notifications.getInstance().show(Type.SUCCESS, Location.BOTTOM_RIGHT,
+										"Cập nhật thành công!");
+							} else {
+								Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+										"Căn cước công dân hoặc số điện thoại này đã tồn tại!");
+							}
+						} catch (RemoteException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
 						}
 					}
 				}
@@ -648,12 +675,24 @@ public class QuanLyThongTinNhanVienPanel extends JPanel implements ActionListene
 			} else if (dateTo != null) {
 				dOBTo = DateTimeFormatUtil.formatDateToLocalDate(dateTo).toString();
 			}
-			List<NhanVien> ls = nvBUS.getNhanViensByDOB(dOBFrom, dOBTo);
-			refreshTable(ls);
+			List<NhanVien> ls;
+			try {
+				ls = nvDAO.getNhanViensByDOB(dOBFrom, dOBTo);
+				refreshTable(ls);
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		} else if (o.equals(btnDoiMatKhau)) {
-			NhanVien nv = nvBUS.getNhanVien(ConstantUtil.currentNhanVien.getMaNhanVien());
-			JDialog doiMatKhauDialog = new DoiMatKhauDialog(nv);
-			doiMatKhauDialog.setVisible(true);
+			NhanVien nv;
+			try {
+				nv = nvDAO.getNhanVien(ConstantUtil.currentNhanVien.getMaNhanVien());
+				JDialog doiMatKhauDialog = new DoiMatKhauDialog(nv);
+				doiMatKhauDialog.setVisible(true);
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 }

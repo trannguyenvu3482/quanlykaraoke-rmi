@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -49,12 +50,12 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignB;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 
-import com.nhom17.quanlykaraoke.bus.HangHoaBUS;
-import com.nhom17.quanlykaraoke.bus.LoaiHangHoaBUS;
-import com.nhom17.quanlykaraoke.entities.HangHoa;
-import com.nhom17.quanlykaraoke.entities.LoaiHangHoa;
-
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.HangHoaDAO;
+import iuh.fit.dao.LoaiHangHoaDAO;
+import iuh.fit.entity.HangHoa;
+import iuh.fit.entity.LoaiHangHoa;
 import iuh.fit.util.ConstantUtil;
 import iuh.fit.util.ExcelUtil;
 import raven.toast.Notifications;
@@ -86,17 +87,19 @@ public class QuanLyHangHoaPanel extends JPanel implements ActionListener {
 	private final JButton btnExportToExcel = new JButton("");
 	private final JComboBox<String> boxFilterTrangThai = new JComboBox<String>();
 	private final JComboBox<String> boxFilterLoaiHangHoa = new JComboBox<String>();
-	private HangHoaBUS hangHoaBUS = new HangHoaBUS();
-	private LoaiHangHoaBUS loaiHangHoaBUS = new LoaiHangHoaBUS();
+	private HangHoaDAO hangHoaDAO = (HangHoaDAO) Client.getDAO("HangHoaDAO");
+	private LoaiHangHoaDAO loaiHangHoaDAO = (LoaiHangHoaDAO) Client.getDAO("LoaiHangHoaDAO");
+	@SuppressWarnings("deprecation")
 	private NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 	private NumberFormatter formatter;
 	private TableRowSorter<TableModel> rowsorter;
 	private List<RowFilter<Object, Object>> filters = new ArrayList<RowFilter<Object, Object>>(4);
 
 	/**
+	 * @throws RemoteException
 	 * 
 	 */
-	public QuanLyHangHoaPanel() {
+	public QuanLyHangHoaPanel() throws RemoteException {
 		setSize(1200, 800);
 		setLayout(new BorderLayout(0, 0));
 
@@ -158,7 +161,7 @@ public class QuanLyHangHoaPanel extends JPanel implements ActionListener {
 		cbTenHH.setForeground(new Color(50, 102, 133));
 
 		cbTenHH.setFont(new Font("Dialog", Font.PLAIN, 20));
-		for (LoaiHangHoa lhh : loaiHangHoaBUS.getAllLoaiHangHoas()) {
+		for (LoaiHangHoa lhh : loaiHangHoaDAO.getAllLoaiHangHoas()) {
 			cbTenHH.addItem(lhh.getTenLoaiHangHoa());
 		}
 
@@ -314,7 +317,7 @@ public class QuanLyHangHoaPanel extends JPanel implements ActionListener {
 		boxFilterLoaiHangHoa.setFont(new Font("Dialog", Font.BOLD, 20));
 		String[] dataLHH = { "Loại hàng hoá" };
 
-		for (LoaiHangHoa lhh : loaiHangHoaBUS.getAllLoaiHangHoas()) {
+		for (LoaiHangHoa lhh : loaiHangHoaDAO.getAllLoaiHangHoas()) {
 			dataLHH = Arrays.copyOf(dataLHH, dataLHH.length + 1);
 			dataLHH[dataLHH.length - 1] = lhh.getTenLoaiHangHoa();
 		}
@@ -433,16 +436,21 @@ public class QuanLyHangHoaPanel extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	Locale lc = new Locale("vi", "VN");
 	NumberFormat nf = NumberFormat.getCurrencyInstance(lc);
 
 	private void refreshTable() {
 		modelDichVu.setRowCount(0);
-		for (HangHoa hh : hangHoaBUS.getAllHangHoas()) {
-			String[] row = { hh.getMaHangHoa(), hh.getTenHangHoa(), hh.getLoaiHangHoa().getTenLoaiHangHoa(),
-					nf.format(hh.getDonGia()), String.valueOf(hh.getSoLuongTon()),
-					hh.isTrangThai() ? "Còn hoạt động" : "Ngưng hoạt động" };
-			modelDichVu.addRow(row);
+		try {
+			for (HangHoa hh : hangHoaDAO.getAllHangHoas()) {
+				String[] row = { hh.getMaHangHoa(), hh.getTenHangHoa(), hh.getLoaiHangHoa().getTenLoaiHangHoa(),
+						nf.format(hh.getDonGia()), String.valueOf(hh.getSoLuongTon()),
+						hh.isTrangThai() ? "Còn hoạt động" : "Ngưng hoạt động" };
+				modelDichVu.addRow(row);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 	}
@@ -479,10 +487,18 @@ public class QuanLyHangHoaPanel extends JPanel implements ActionListener {
 					int a = (int) txtDonGia.getValue();
 					b = (double) a;
 				}
-				LoaiHangHoa lhh = loaiHangHoaBUS.getLoaiHangHoaByname(cbTenHH.getSelectedItem().toString());
-				HangHoa hh = new HangHoa("", txtTenSanPham.getText(), lhh, Integer.parseInt(txtSoLuongTon.getText()), b,
-						trangThai(boxTrangThai.getSelectedItem().toString()));
-				hangHoaBUS.addHangHoa(hh);
+				LoaiHangHoa lhh;
+				try {
+					lhh = loaiHangHoaDAO.getLoaiHangHoaByname(cbTenHH.getSelectedItem().toString());
+					HangHoa hh = new HangHoa("", txtTenSanPham.getText(), lhh,
+							Integer.parseInt(txtSoLuongTon.getText()), b,
+							trangThai(boxTrangThai.getSelectedItem().toString()));
+					hangHoaDAO.addHangHoa(hh);
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
 				refreshTable();
 				clearFields();
 			} else {
@@ -503,11 +519,18 @@ public class QuanLyHangHoaPanel extends JPanel implements ActionListener {
 							int a = (int) txtDonGia.getValue();
 							b = (double) a;
 						}
-						LoaiHangHoa lhh = loaiHangHoaBUS.getLoaiHangHoaByname(cbTenHH.getSelectedItem().toString());
-						HangHoa hh = new HangHoa((String) modelDichVu.getValueAt(tblDichVu.getSelectedRow(), 0),
-								txtTenSanPham.getText(), lhh, Integer.parseInt(txtSoLuongTon.getText()), b,
-								trangThai(boxTrangThai.getSelectedItem().toString()));
-						hangHoaBUS.updateHangHoa(hh);
+						LoaiHangHoa lhh;
+						try {
+							lhh = loaiHangHoaDAO.getLoaiHangHoaByname(cbTenHH.getSelectedItem().toString());
+							HangHoa hh = new HangHoa((String) modelDichVu.getValueAt(tblDichVu.getSelectedRow(), 0),
+									txtTenSanPham.getText(), lhh, Integer.parseInt(txtSoLuongTon.getText()), b,
+									trangThai(boxTrangThai.getSelectedItem().toString()));
+							hangHoaDAO.updateHangHoa(hh);
+						} catch (RemoteException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
 						refreshTable();
 						clearFields();
 					} else {
@@ -526,11 +549,18 @@ public class QuanLyHangHoaPanel extends JPanel implements ActionListener {
 				if (sl.matches(rg)) {
 					long a = (long) txtDonGia.getValue();
 					double b = (double) a;
-					LoaiHangHoa lhh = loaiHangHoaBUS.getLoaiHangHoaByname(cbTenHH.getSelectedItem().toString());
-					HangHoa hh = new HangHoa((String) modelDichVu.getValueAt(tblDichVu.getSelectedRow(), 0),
-							txtTenSanPham.getText(), lhh, Integer.parseInt(txtSoLuongTon.getText()), b,
-							trangThai(boxTrangThai.getSelectedItem().toString()));
-					hangHoaBUS.updateSoLuongTon(hh, Integer.parseInt(sl));
+					LoaiHangHoa lhh;
+					try {
+						lhh = loaiHangHoaDAO.getLoaiHangHoaByname(cbTenHH.getSelectedItem().toString());
+						HangHoa hh = new HangHoa((String) modelDichVu.getValueAt(tblDichVu.getSelectedRow(), 0),
+								txtTenSanPham.getText(), lhh, Integer.parseInt(txtSoLuongTon.getText()), b,
+								trangThai(boxTrangThai.getSelectedItem().toString()));
+						hangHoaDAO.updateSoLuongTon(hh, Integer.parseInt(sl));
+					} catch (RemoteException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
 					refreshTable();
 					clearFields();
 				} else {
@@ -548,11 +578,18 @@ public class QuanLyHangHoaPanel extends JPanel implements ActionListener {
 							.parseInt(sl)) {
 						long a = (long) txtDonGia.getValue();
 						double b = (double) a;
-						LoaiHangHoa lhh = loaiHangHoaBUS.getLoaiHangHoaByname(cbTenHH.getSelectedItem().toString());
-						HangHoa hh = new HangHoa((String) modelDichVu.getValueAt(tblDichVu.getSelectedRow(), 0),
-								txtTenSanPham.getText(), lhh, Integer.parseInt(txtSoLuongTon.getText()), b,
-								trangThai(boxTrangThai.getSelectedItem().toString()));
-						hangHoaBUS.updateSoLuongTon(hh, Integer.parseInt(sl) * (-1));
+						LoaiHangHoa lhh;
+						try {
+							lhh = loaiHangHoaDAO.getLoaiHangHoaByname(cbTenHH.getSelectedItem().toString());
+							HangHoa hh = new HangHoa((String) modelDichVu.getValueAt(tblDichVu.getSelectedRow(), 0),
+									txtTenSanPham.getText(), lhh, Integer.parseInt(txtSoLuongTon.getText()), b,
+									trangThai(boxTrangThai.getSelectedItem().toString()));
+							hangHoaDAO.updateSoLuongTon(hh, Integer.parseInt(sl) * (-1));
+						} catch (RemoteException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
 						refreshTable();
 						clearFields();
 					} else {
@@ -605,7 +642,7 @@ public class QuanLyHangHoaPanel extends JPanel implements ActionListener {
 					listTitle.add("Số lượng tồn");
 					listTitle.add("Đơn giá");
 					listTitle.add("Trạng thái");
-					ExcelUtil.writeExcel(listTitle, hangHoaBUS.getAllHangHoas(), excelFilePath);
+					ExcelUtil.writeExcel(listTitle, hangHoaDAO.getAllHangHoas(), excelFilePath);
 
 					int status = JOptionPane.showConfirmDialog(null, "Bạn có muốn mở file excel vừa xuất không?",
 							"Thông báo", JOptionPane.YES_NO_OPTION);

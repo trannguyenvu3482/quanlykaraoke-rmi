@@ -194,21 +194,18 @@ public class ThongTinPhanMemPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
 		Object o = e.getSource();
 
 		if (o.equals(btnGithub)) {
 			try {
 				Desktop.getDesktop().browse(new URI("https://github.com/trannguyenvu3482/iuh-app-dev-group-17"));
 			} catch (IOException | URISyntaxException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		} else if (o.equals(btnFacebook)) {
 			try {
 				Desktop.getDesktop().browse(new URI("https://www.facebook.com/DuzFromSOL"));
 			} catch (IOException | URISyntaxException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}

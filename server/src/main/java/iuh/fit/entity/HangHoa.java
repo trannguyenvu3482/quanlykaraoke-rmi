@@ -1,5 +1,6 @@
 package iuh.fit.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -11,12 +12,12 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "HangHoa")
-public class HangHoa {
+public class HangHoa implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 7617133491879637648L;
 
 	@Id
 	@Column(columnDefinition = "char(5)")
@@ -41,7 +42,7 @@ public class HangHoa {
 	public HangHoa() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	public HangHoa(String maHangHoa, String tenHangHoa, LoaiHangHoa loaiHangHoa, int soLuongTon, double donGia,
 			boolean trangThai) {
 		this.maHangHoa = maHangHoa;

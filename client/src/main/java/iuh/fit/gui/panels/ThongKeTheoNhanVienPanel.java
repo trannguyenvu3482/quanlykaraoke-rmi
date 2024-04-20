@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.rmi.RemoteException;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
@@ -47,15 +48,16 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
 
-import com.nhom17.quanlykaraoke.bus.NhanVienBUS;
-import com.nhom17.quanlykaraoke.bus.PhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.entities.NhanVien;
-import com.nhom17.quanlykaraoke.entities.PhieuDatPhong;
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
 
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.NhanVienDAO;
+import iuh.fit.dao.PhieuDatPhongDAO;
+import iuh.fit.entity.NhanVien;
+import iuh.fit.entity.PhieuDatPhong;
 import iuh.fit.util.ConstantUtil;
 import iuh.fit.util.DateTimeFormatUtil;
 import iuh.fit.util.MoneyFormatUtil;
@@ -73,7 +75,7 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	// COMPONENTS
-	private final JComboBox<String> boxFilterNgay = new JComboBox<String>();
+	private final JComboBox<String> boxFilterNgay = new JComboBox<>();
 	private final JPanel panelFilters = new JPanel();
 	private JTextField txtSearch;
 	private JTable tblThongKe;
@@ -92,8 +94,8 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 	private JFreeChart barChart;
 
 	// VARIABLES
-	private final NhanVienBUS nvBUS = new NhanVienBUS();
-	private final PhieuDatPhongBUS pdpBUS = new PhieuDatPhongBUS();
+	private final NhanVienDAO nvDAO = (NhanVienDAO) Client.getDAO("NhanVienDAO");
+	private final PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
 	private ChartPanel chartPanel;
 
 	private double tongDoanhThu = 0;
@@ -108,6 +110,7 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	public ThongKeTheoNhanVienPanel() {
 		setSize(1200, 800);
 		setLayout(new BorderLayout(0, 0));
@@ -467,12 +470,18 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 		// TODO Auto-generated method stub
 		modelThongKe.setRowCount(0);
 
-		List<NhanVien> listNV = nvBUS.getAllNhanViens();
-
-		for (NhanVien nv : listNV) {
-			Object[] rowData = { nv.getMaNhanVien(), nv.getHoTen(), nv.getSoDienThoai(), nv.getCCCD() };
-			modelThongKe.addRow(rowData);
+		List<NhanVien> listNV;
+		try {
+			listNV = nvDAO.getAllNhanViens();
+			for (NhanVien nv : listNV) {
+				Object[] rowData = { nv.getMaNhanVien(), nv.getHoTen(), nv.getSoDienThoai(), nv.getCCCD() };
+				modelThongKe.addRow(rowData);
+			}
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
 	}
 
 	/**
@@ -482,22 +491,28 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 		// Reset all fields
 		resetAllStatistics();
 
-		List<PhieuDatPhong> listPDP = pdpBUS.getAllPhieuDatPhongFromDateByNhanVien(maNV,
-				DateTimeFormatUtil.formatDateToLocalDate(fromDate).atStartOfDay(),
-				DateTimeFormatUtil.formatDateToLocalDate(toDate).atStartOfDay());
+		List<PhieuDatPhong> listPDP;
+		try {
+			listPDP = pdpDAO.getAllPhieuDatPhongFromDateByNhanVien(maNV,
+					DateTimeFormatUtil.formatDateToLocalDate(fromDate).atStartOfDay(),
+					DateTimeFormatUtil.formatDateToLocalDate(toDate).atStartOfDay());
+			if (listPDP == null || listPDP.size() == 0) {
+				Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+						"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
+				return;
+			}
 
-		if (listPDP == null || listPDP.size() == 0) {
-			Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
-					"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
-			return;
+			System.out.println("Mã nhân viên: " + maNV);
+
+			handleCalculateData(listPDP);
+
+			// Handle set labels
+			handleSetLabel();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-		System.out.println("Mã nhân viên: " + maNV);
-
-		handleCalculateData(listPDP);
-
-		// Handle set labels
-		handleSetLabel();
 	}
 
 	/**
@@ -507,36 +522,48 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 		// Reset all fields
 		resetAllStatistics();
 
-		List<PhieuDatPhong> listPDP = pdpBUS.getAllPhieuDatPhongByMonthByNhanVien(maNV, month);
+		List<PhieuDatPhong> listPDP;
+		try {
+			listPDP = pdpDAO.getAllPhieuDatPhongByMonthByNhanVien(maNV, month);
+			if (listPDP == null || listPDP.size() == 0) {
+				Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+						"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
+				return;
+			}
 
-		if (listPDP == null || listPDP.size() == 0) {
-			Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
-					"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
-			return;
+			handleCalculateData(listPDP);
+
+			// Handle set labels
+			handleSetLabel();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-		handleCalculateData(listPDP);
-
-		// Handle set labels
-		handleSetLabel();
 	}
 
 	private void handleThongKeByYear(String maNV, int year) {
 		// Reset all fields
 		resetAllStatistics();
 
-		List<PhieuDatPhong> listPDP = pdpBUS.getAllPhieuDatPhongByYearByNhanVien(maNV, year);
+		List<PhieuDatPhong> listPDP;
+		try {
+			listPDP = pdpDAO.getAllPhieuDatPhongByYearByNhanVien(maNV, year);
+			if (listPDP == null || listPDP.size() == 0) {
+				Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+						"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
+				return;
+			}
 
-		if (listPDP == null || listPDP.size() == 0) {
-			Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
-					"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
-			return;
+			handleCalculateData(listPDP);
+
+			// Handle set labels
+			handleSetLabel();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-		handleCalculateData(listPDP);
-
-		// Handle set labels
-		handleSetLabel();
 	}
 
 	/**
@@ -587,12 +614,18 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 		// Load each month data to chart
 		for (int i = 1; i <= 12; i++) {
 			int doanhThu = 0;
-			List<PhieuDatPhong> listPhieuDatPhong = pdpBUS.getAllPhieuDatPhongByMonthByNhanVien(maNV, i);
-			for (PhieuDatPhong pdp : listPhieuDatPhong) {
-				double tongTien = pdp.getTienDichVu() + pdp.getTienPhong();
-				doanhThu += tongTien;
+			List<PhieuDatPhong> listPhieuDatPhong;
+			try {
+				listPhieuDatPhong = pdpDAO.getAllPhieuDatPhongByMonthByNhanVien(maNV, i);
+				for (PhieuDatPhong pdp : listPhieuDatPhong) {
+					double tongTien = pdp.getTienDichVu() + pdp.getTienPhong();
+					doanhThu += tongTien;
+				}
+				dataset.addValue(doanhThu, "Doanh thu", "Tháng " + i);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			dataset.addValue(doanhThu, "Doanh thu", "Tháng " + i);
 		}
 
 		barChart.fireChartChanged();

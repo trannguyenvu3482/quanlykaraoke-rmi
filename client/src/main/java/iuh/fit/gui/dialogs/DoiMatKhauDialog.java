@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -18,9 +19,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
-import com.nhom17.quanlykaraoke.bus.NhanVienBUS;
-import com.nhom17.quanlykaraoke.entities.NhanVien;
-
+import iuh.fit.client.Client;
+import iuh.fit.dao.NhanVienDAO;
+import iuh.fit.entity.NhanVien;
 import iuh.fit.util.ConstantUtil;
 import iuh.fit.util.PasswordUtil;
 
@@ -37,7 +38,7 @@ public class DoiMatKhauDialog extends JDialog implements ActionListener {
 	private final JButton btnDoiMatKhau = new JButton("Đổi mật khẩu");
 	private final JButton btnHuy = new JButton("Hủy");
 
-	private final NhanVienBUS nvBUS = new NhanVienBUS();
+	private final NhanVienDAO nvDAO = (NhanVienDAO) Client.getDAO("NhanVienDAO");
 	private final NhanVien nhanVienCurrent;
 
 	public DoiMatKhauDialog(NhanVien nhanVien) {
@@ -47,6 +48,7 @@ public class DoiMatKhauDialog extends JDialog implements ActionListener {
 		btnHuy.addActionListener(this);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
@@ -58,19 +60,26 @@ public class DoiMatKhauDialog extends JDialog implements ActionListener {
 				JOptionPane.showMessageDialog(null, "Mật khẩu không được để trống!", "Thông báo",
 						JOptionPane.ERROR_MESSAGE);
 			} else {
-				NhanVien nhanVien = nvBUS.getNhanVien(ConstantUtil.currentNhanVien.getMaNhanVien());
-				if (!PasswordUtil.check(txtCurrentPass.getText(), nhanVien.getMatKhau())) {
-					JOptionPane.showMessageDialog(null, "Mật khẩu hiện tại không chính xác!", "Thông báo",
-							JOptionPane.ERROR_MESSAGE);
-				} else if (!txtNewPass.getText().equalsIgnoreCase(txtComfirmPass.getText())) {
-					JOptionPane.showMessageDialog(null, "Mật khẩu mới không đồng nhất!", "Thông báo",
-							JOptionPane.ERROR_MESSAGE);
-				} else {
-					nhanVien.setMatKhau(PasswordUtil.encrypt(txtNewPass.getText()));
-					nvBUS.updateNV(nhanVien);
-					JOptionPane.showMessageDialog(null, "Đổi mật khẩu thành công", "Thông báo",
-							JOptionPane.DEFAULT_OPTION);
-					this.dispose();
+				NhanVien nhanVien;
+				try {
+					nhanVien = nvDAO.getNhanVien(ConstantUtil.currentNhanVien.getMaNhanVien());
+
+					if (!PasswordUtil.check(txtCurrentPass.getText(), nhanVien.getMatKhau())) {
+						JOptionPane.showMessageDialog(null, "Mật khẩu hiện tại không chính xác!", "Thông báo",
+								JOptionPane.ERROR_MESSAGE);
+					} else if (!txtNewPass.getText().equalsIgnoreCase(txtComfirmPass.getText())) {
+						JOptionPane.showMessageDialog(null, "Mật khẩu mới không đồng nhất!", "Thông báo",
+								JOptionPane.ERROR_MESSAGE);
+					} else {
+						nhanVien.setMatKhau(PasswordUtil.encrypt(txtNewPass.getText()));
+						nvDAO.updateNV(nhanVien);
+						JOptionPane.showMessageDialog(null, "Đổi mật khẩu thành công", "Thông báo",
+								JOptionPane.DEFAULT_OPTION);
+						this.dispose();
+					}
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		}

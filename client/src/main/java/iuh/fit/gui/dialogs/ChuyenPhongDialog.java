@@ -20,11 +20,11 @@ import javax.swing.table.DefaultTableModel;
 
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 
-import com.nhom17.quanlykaraoke.bus.PhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.bus.PhongBUS;
-import com.nhom17.quanlykaraoke.entities.Phong;
-
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.PhieuDatPhongDAO;
+import iuh.fit.dao.PhongDAO;
+import iuh.fit.entity.Phong;
 import iuh.fit.util.MoneyFormatUtil;
 import raven.toast.Notifications;
 import raven.toast.Notifications.Location;
@@ -45,8 +45,8 @@ public class ChuyenPhongDialog extends JDialog {
 
 	// VARIABLES
 	private Phong p;
-	private final PhongBUS pBUS = new PhongBUS();
-	private final PhieuDatPhongBUS pdpBUS = new PhieuDatPhongBUS();
+	private final PhongDAO pDAO = (PhongDAO) Client.getDAO("PhongDAO");
+	private final PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
 
 	/**
 	 * 
@@ -108,13 +108,19 @@ public class ChuyenPhongDialog extends JDialog {
 			if (JOptionPane.showConfirmDialog(null,
 					"Bạn có muốn chuyển sang phòng " + tbl.getModel().getValueAt(tbl.getSelectedRow(), 0), "Thông báo",
 					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-				if (pdpBUS.changeRoomForPhieuDatPhong(p.getMaPhong(),
-						tbl.getModel().getValueAt(tbl.getSelectedRow(), 0).toString().trim())) {
-					Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
-							"Chuyển phòng thành công");
-					dispose();
-				} else {
-					Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
+				try {
+					if (pdpDAO.changeRoomForPhieuDatPhong(p.getMaPhong(),
+							tbl.getModel().getValueAt(tbl.getSelectedRow(), 0).toString().trim())) {
+						Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
+								"Chuyển phòng thành công");
+						dispose();
+					} else {
+						Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
+								"Chuyển phòng thất bại");
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					Notifications.getInstance().show(raven.toast.Notifications.Type.ERROR, Location.BOTTOM_RIGHT,
 							"Chuyển phòng thất bại");
 				}
 			}
@@ -145,16 +151,22 @@ public class ChuyenPhongDialog extends JDialog {
 	};
 
 	private void refreshTable(Phong excludeRoom) {
-		model.setRowCount(0);
+		try {
+			model.setRowCount(0);
 
-		List<Phong> listPhong = pBUS.getAllEmptyPhongs();
-		listPhong.remove(excludeRoom);
+			List<Phong> listPhong = pDAO.getAllEmptyPhongs();
+			listPhong.remove(excludeRoom);
 
-		listPhong.forEach((p) -> {
-			Object[] rowData = { p.getMaPhong(), p.getLoaiPhong().getTenLoaiPhong(), p.getLoaiPhong().getKichThuoc(),
-					MoneyFormatUtil.format(p.getLoaiPhong().getPhuPhi()) };
-			model.addRow(rowData);
-		});
+			listPhong.forEach((p) -> {
+				Object[] rowData = { p.getMaPhong(), p.getLoaiPhong().getTenLoaiPhong(),
+						p.getLoaiPhong().getKichThuoc(), MoneyFormatUtil.format(p.getLoaiPhong().getPhuPhi()) };
+				model.addRow(rowData);
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+			Notifications.getInstance().show(raven.toast.Notifications.Type.ERROR, Location.BOTTOM_RIGHT,
+					"Không thể tải dữ liệu");
+		}
 	}
 
 }

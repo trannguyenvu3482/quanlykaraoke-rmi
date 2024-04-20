@@ -29,6 +29,10 @@ import iuh.fit.dao.impl.NhanVienImpl;
 import iuh.fit.dao.impl.PhieuDatPhongImpl;
 import iuh.fit.dao.impl.PhongImpl;
 import iuh.fit.util.HibernateUtil;
+import iuh.fit.util.OTPService;
+import iuh.fit.util.OTPUtil;
+import iuh.fit.util.PasswordService;
+import iuh.fit.util.PasswordUtil;
 
 /**
  * @author Trần Nguyên Vũ
@@ -48,7 +52,7 @@ public class Server {
 
 			LocateRegistry.createRegistry(8001);
 
-			// Create remote objects
+			// Create remote DAOs
 			PhongDAO phongDAO = new PhongImpl();
 			NhanVienDAO nhanVienDAO = new NhanVienImpl();
 			HangHoaDAO hangHoaDAO = new HangHoaImpl();
@@ -60,7 +64,11 @@ public class Server {
 			ChiTietDichVuDAO chiTietDichVuDAO = new ChiTietDichVuImpl();
 			ChiTietPhieuDatPhongDAO chiTietPhieuDatPhong = new ChiTietPhieuDatPhongImpl();
 
-			// Bind object to rmi server
+			// Create remote server-side utils
+			PasswordService passwordUtil = new PasswordUtil();
+			OTPService OTPUtil = new OTPUtil();
+
+			// Bind DAOs to rmi server
 			context.rebind(URL + "PhongDAO", phongDAO);
 			context.rebind(URL + "NhanVienDAO", nhanVienDAO);
 			context.rebind(URL + "HangHoaDAO", hangHoaDAO);
@@ -71,6 +79,10 @@ public class Server {
 			context.rebind(URL + "ChucVuDAO", chucVuDAO);
 			context.rebind(URL + "ChiTietDichVuDAO", chiTietDichVuDAO);
 			context.rebind(URL + "ChiTietPhieuDatPhongDAO", chiTietPhieuDatPhong);
+
+			// Bind utils to rmi server
+			context.rebind(URL + "OTPUtil", OTPUtil);
+			context.rebind(URL + "PasswordUtil", passwordUtil);
 
 			// Log
 			System.out.println("Server started");

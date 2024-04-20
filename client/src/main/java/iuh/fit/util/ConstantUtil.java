@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import com.nhom17.quanlykaraoke.entities.NhanVien;
+import iuh.fit.entity.NhanVien;
 
 public class ConstantUtil {
 	public static final Color DARKER_BLUE = new Color(3, 4, 94);

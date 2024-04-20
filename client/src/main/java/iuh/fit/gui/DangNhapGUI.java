@@ -1,8 +1,3 @@
-/**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
- * @version 1.0
- * @created Nov 6, 2023 1:06:43 AM
- */
 package iuh.fit.gui;
 
 import java.awt.BorderLayout;
@@ -25,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -34,10 +30,20 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 
-import com.nhom17.quanlykaraoke.bus.DangNhapBUS;
-import com.nhom17.quanlykaraoke.entities.NhanVien;
-
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.NhanVienDAO;
+import iuh.fit.entity.NhanVien;
+
+//import com.nhom17.quanlykaraoke.dao.NhanVienDAO;
+//import com.nhom17.quanlykaraoke.entities.NhanVien;
+
+// import com.nhom17.quanlykaraoke.bus.DangNhapDAO;
+// import com.nhom17.quanlykaraoke.dao.NhanVienDAO;
+// import com.nhom17.quanlykaraoke.entities.NhanVien;
+
+import iuh.fit.util.OTPUtil;
+import iuh.fit.util.PasswordUtil;
 import raven.toast.Notifications;
 
 /**
@@ -56,7 +62,6 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	// BUS
-	private DangNhapBUS dangNhapBUS;
 
 	// COMPONENTS
 	private JFormattedTextField txtMaNV = null;
@@ -73,8 +78,10 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 	private final JButton btnReturn = new JButton("");
 	private final JButton btnResetPassword = new JButton("Tạo mật khẩu mới");
 
+	private final OTPUtil OTPUtil = (OTPUtil) Client.getUtil("OTPUtil");
+
 	// VARIABLES
-//	private final NhanVienBUS nvBUS = new NhanVienBUS();
+	private final NhanVienDAO nhanVienDAO = (NhanVienDAO) Client.getDAO("NhanVienDAO");
 	private Map<JPasswordField, Boolean> isPasswordShownStates = new HashMap<>();
 	private LoginListener listener;
 	private long duration = 10000;
@@ -99,7 +106,7 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 		setIconImage(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream("images/logo.png")))
 				.getImage());
 
-//		dangNhapBUS = new DangNhapBUS();
+		// dangNhapDAO = new dangNhapDAO();
 
 		JPanel mainPanel = new JPanel();
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
@@ -324,6 +331,7 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 	 * @param e the event
 	 */
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
@@ -335,44 +343,55 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 			panelLogin.setVisible(false);
 			panelForgot.setVisible(true);
 		} else if (o.equals(btnGetOTP)) {
-//			if (txtPhoneNo.getText().trim().length() != 10) {
-//				Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
-//						"Số điện thoại không đúng định dạng");
-//				return;
-//			}
-//
-//			NhanVien nv = nvBUS.getNhanVienBySDT(txtPhoneNo.getText().trim());
-//
-//			if (nv == null) {
-//				Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
-//						"Không có nhân viên nào có số điện thoại trên");
-//				return;
-//			}
-//
-//			currentForgotPasswordNV = nv;
-//
-//			phoneNo = "+84" + txtPhoneNo.getText().substring(1);
-//			OTPUtil.sendSMS(phoneNo);
-//			System.out.println("Send SMS to: " + phoneNo);
-//			timeoutBtnGetOTP();
-//			Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
-//					"Đã gửi OTP thành công");
+			try {
+				if (txtPhoneNo.getText().trim().length() != 10) {
+					Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
+							"Số điện thoại không đúng định dạng");
+					return;
+				}
 
+				NhanVien nv = nhanVienDAO.getNhanVienBySDT(txtPhoneNo.getText().trim());
+
+				if (nv == null) {
+					Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
+							"Không có nhân viên nào có số điện thoại trên");
+					return;
+				}
+
+				currentForgotPasswordNV = nv;
+
+				phoneNo = "+84" + txtPhoneNo.getText().substring(1);
+				OTPUtil.sendSMS(phoneNo);
+				System.out.println("Send SMS to: " + phoneNo);
+				timeoutBtnGetOTP();
+				Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
+						"Đã gửi OTP thành công");
+			} catch (Exception e2) {
+				e2.printStackTrace();
+				Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
+						"Không thể gửi OTP, vui lòng thử lại sau");
+			}
 		} else if (o.equals(btnResetPassword)) {
-//			System.out.println("phoneNo: " + phoneNo);
-//
-//			if (OTPUtil.checkOTP(phoneNo, txtOTP.getText().trim())) { // TODO: Thêm logic reset password tại đây
-//				currentForgotPasswordNV.setMatKhau(PasswordUtil.encrypt(txtNewPassword.getText().trim()));
-//
-//				nvBUS.updateNV(currentForgotPasswordNV);
-//
-//				Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
-//						"Đã thay đổi mật khẩu");
-//				btnReturn.doClick();
-//			} else {
-//				Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
-//						"OTP không đúng, vui lòng nhập lại");
-//			}
+			try {
+				System.out.println("phoneNo: " + phoneNo);
+
+				if (OTPUtil.checkOTP(phoneNo, txtOTP.getText().trim())) {
+					currentForgotPasswordNV.setMatKhau(PasswordUtil.encrypt(txtNewPassword.getText().trim()));
+
+					nhanVienDAO.updateNV(currentForgotPasswordNV);
+
+					Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
+							"Đã thay đổi mật khẩu");
+					btnReturn.doClick();
+				} else {
+					Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
+							"OTP không đúng, vui lòng nhập lại");
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+				Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
+						"Không thể thay đổi mật khẩu, vui lòng thử lại sau");
+			}
 		} else if (o.equals(btnReturn)) {
 			setTitle("Đăng nhập");
 			panelLogin.setVisible(true);
@@ -387,7 +406,7 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 	private void timeoutBtnGetOTP() {
 		btnGetOTP.setEnabled(false);
 
-		javax.swing.Timer timer = new javax.swing.Timer((int) duration, e -> btnGetOTP.setEnabled(true));
+		Timer timer = new javax.swing.Timer((int) duration, e -> btnGetOTP.setEnabled(true));
 
 		timer.setRepeats(false);
 		timer.start();
@@ -403,30 +422,38 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 	 * Handle login action
 	 */
 	private void handleLogin() {
-		String maNV = txtMaNV.getText().trim();
+		try {
+			String maNV = txtMaNV.getText().trim();
 
-		String password = txtMatKhau.getText().trim();
+			@SuppressWarnings("deprecation")
+			String password = txtMatKhau.getText().trim();
 
-		if (isPasswordValid(maNV, password)) {
-			boolean ketQua = dangNhapBUS.checkDangNhap(maNV, password);
+			if (isPasswordValid(maNV, password)) {
+				boolean ketQua = nhanVienDAO.checkDangNhap(maNV, password);
 
-			if (ketQua) {
-				setLoggedInEmployeeID(maNV);
-				if (listener != null) {
-					listener.onLogin(maNV);
+				if (ketQua) {
+					setLoggedInEmployeeID(maNV);
+					if (listener != null) {
+						listener.onLogin(maNV);
+					}
+					Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
+							"Đăng nhập thành công");
+					dispose();
+				} else {
+					Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
+							"Sai tên đăng nhập hoặc mật khẩu");
+					txtMaNV.setBorder(
+							BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 3, true),
+									BorderFactory.createEmptyBorder(0, 50, 0, 0)));
+					txtMatKhau.setBorder(
+							BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 3, true),
+									BorderFactory.createEmptyBorder(0, 50, 0, 0)));
 				}
-				Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
-						"Đăng nhập thành công");
-				dispose();
-			} else {
-				Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
-						"Sai tên đăng nhập hoặc mật khẩu");
-				txtMaNV.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 3, true),
-						BorderFactory.createEmptyBorder(0, 50, 0, 0)));
-				txtMatKhau.setBorder(
-						BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 3, true),
-								BorderFactory.createEmptyBorder(0, 50, 0, 0)));
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
+					"Có lỗi xảy ra, vui lòng thử lại sau");
 		}
 	}
 

@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.rmi.RemoteException;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
@@ -47,15 +48,16 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
 
-import com.nhom17.quanlykaraoke.bus.KhachHangBUS;
-import com.nhom17.quanlykaraoke.bus.PhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.entities.KhachHang;
-import com.nhom17.quanlykaraoke.entities.PhieuDatPhong;
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
 
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.KhachHangDAO;
+import iuh.fit.dao.PhieuDatPhongDAO;
+import iuh.fit.entity.KhachHang;
+import iuh.fit.entity.PhieuDatPhong;
 import iuh.fit.util.ConstantUtil;
 import iuh.fit.util.DateTimeFormatUtil;
 import iuh.fit.util.MoneyFormatUtil;
@@ -92,8 +94,8 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener 
 	private JFreeChart barChart;
 
 	// VARIABLES
-	private final KhachHangBUS khBUS = new KhachHangBUS();
-	private final PhieuDatPhongBUS pdpBUS = new PhieuDatPhongBUS();
+	private final KhachHangDAO khDAO = (KhachHangDAO) Client.getDAO("KhachHangDAO");
+	private final PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
 
 	private double tongDoanhThu = 0;
 	private int tongHoaDon = 0;
@@ -107,6 +109,7 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener 
 	/**
 	 * 
 	 */
+	@SuppressWarnings("deprecation")
 	public ThongKeTheoKhachHangPanel() {
 		setSize(1200, 800);
 		setLayout(new BorderLayout(0, 0));
@@ -465,12 +468,18 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener 
 		// TODO Auto-generated method stub
 		modelThongKe.setRowCount(0);
 
-		List<KhachHang> listKH = khBUS.getAllKhachHangs();
-
-		for (KhachHang kh : listKH) {
-			Object[] rowData = { kh.getMaKhachHang(), kh.getHoTen(), kh.getSoDienThoai(), kh.getCCCD() };
-			modelThongKe.addRow(rowData);
+		List<KhachHang> listKH;
+		try {
+			listKH = khDAO.getAllKhachHangs();
+			for (KhachHang kh : listKH) {
+				Object[] rowData = { kh.getMaKhachHang(), kh.getHoTen(), kh.getSoDienThoai(), kh.getCCCD() };
+				modelThongKe.addRow(rowData);
+			}
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
 	}
 
 	/**
@@ -480,20 +489,26 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener 
 		// Reset all fields
 		resetAllStatistics();
 
-		List<PhieuDatPhong> listPDP = pdpBUS.getAllPhieuDatPhongFromDateByKhachHang(maKH,
-				DateTimeFormatUtil.formatDateToLocalDate(fromDate).atStartOfDay(),
-				DateTimeFormatUtil.formatDateToLocalDate(toDate).atStartOfDay());
+		List<PhieuDatPhong> listPDP;
+		try {
+			listPDP = pdpDAO.getAllPhieuDatPhongFromDateByKhachHang(maKH,
+					DateTimeFormatUtil.formatDateToLocalDate(fromDate).atStartOfDay(),
+					DateTimeFormatUtil.formatDateToLocalDate(toDate).atStartOfDay());
+			if (listPDP == null || listPDP.size() == 0) {
+				Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+						"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
+				return;
+			}
 
-		if (listPDP == null || listPDP.size() == 0) {
-			Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
-					"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
-			return;
+			handleCalculateData(listPDP);
+
+			// Handle set labels
+			handleSetLabel();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-		handleCalculateData(listPDP);
-
-		// Handle set labels
-		handleSetLabel();
 	}
 
 	/**
@@ -503,36 +518,48 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener 
 		// Reset all fields
 		resetAllStatistics();
 
-		List<PhieuDatPhong> listPDP = pdpBUS.getAllPhieuDatPhongByMonthByKhachHang(maKH, month);
+		List<PhieuDatPhong> listPDP;
+		try {
+			listPDP = pdpDAO.getAllPhieuDatPhongByMonthByKhachHang(maKH, month);
+			if (listPDP == null || listPDP.size() == 0) {
+				Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+						"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
+				return;
+			}
 
-		if (listPDP == null || listPDP.size() == 0) {
-			Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
-					"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
-			return;
+			handleCalculateData(listPDP);
+
+			// Handle set labels
+			handleSetLabel();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-		handleCalculateData(listPDP);
-
-		// Handle set labels
-		handleSetLabel();
 	}
 
 	private void handleThongKeByYear(String maKH, int year) {
 		// Reset all fields
 		resetAllStatistics();
 
-		List<PhieuDatPhong> listPDP = pdpBUS.getAllPhieuDatPhongByYearByKhachHang(maKH, year);
+		List<PhieuDatPhong> listPDP;
+		try {
+			listPDP = pdpDAO.getAllPhieuDatPhongByYearByKhachHang(maKH, year);
+			if (listPDP == null || listPDP.size() == 0) {
+				Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
+						"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
+				return;
+			}
 
-		if (listPDP == null || listPDP.size() == 0) {
-			Notifications.getInstance().show(Type.ERROR, Location.BOTTOM_RIGHT,
-					"Không tìm thấy hóa đơn nào phù hợp theo yêu cầu tìm kiếm");
-			return;
+			handleCalculateData(listPDP);
+
+			// Handle set labels
+			handleSetLabel();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-		handleCalculateData(listPDP);
-
-		// Handle set labels
-		handleSetLabel();
 	}
 
 	/**
@@ -582,12 +609,19 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener 
 		// Load each month data to chart
 		for (int i = 1; i <= 12; i++) {
 			int doanhThu = 0;
-			List<PhieuDatPhong> listPhieuDatPhong = pdpBUS.getAllPhieuDatPhongByMonthByKhachHang(maKH, i);
-			for (PhieuDatPhong pdp : listPhieuDatPhong) {
-				double tongTien = pdp.getTienDichVu() + pdp.getTienPhong();
-				doanhThu += tongTien;
+			List<PhieuDatPhong> listPhieuDatPhong;
+			try {
+				listPhieuDatPhong = pdpDAO.getAllPhieuDatPhongByMonthByKhachHang(maKH, i);
+
+				for (PhieuDatPhong pdp : listPhieuDatPhong) {
+					double tongTien = pdp.getTienDichVu() + pdp.getTienPhong();
+					doanhThu += tongTien;
+				}
+				dataset.addValue(doanhThu, "Doanh thu", "Tháng " + i);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			dataset.addValue(doanhThu, "Doanh thu", "Tháng " + i);
 		}
 
 		barChart.fireChartChanged();

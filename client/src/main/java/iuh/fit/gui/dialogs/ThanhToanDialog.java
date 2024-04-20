@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -38,15 +39,16 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.nhom17.quanlykaraoke.bus.ChiTietDichVuBUS;
-import com.nhom17.quanlykaraoke.bus.ChiTietPhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.bus.PhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.entities.ChiTietDichVu;
-import com.nhom17.quanlykaraoke.entities.ChiTietPhieuDatPhong;
-import com.nhom17.quanlykaraoke.entities.KhachHang;
-import com.nhom17.quanlykaraoke.entities.PhieuDatPhong;
-import com.nhom17.quanlykaraoke.entities.Phong;
 
+import iuh.fit.client.Client;
+import iuh.fit.dao.ChiTietDichVuDAO;
+import iuh.fit.dao.ChiTietPhieuDatPhongDAO;
+import iuh.fit.dao.PhieuDatPhongDAO;
+import iuh.fit.entity.ChiTietDichVu;
+import iuh.fit.entity.ChiTietPhieuDatPhong;
+import iuh.fit.entity.KhachHang;
+import iuh.fit.entity.PhieuDatPhong;
+import iuh.fit.entity.Phong;
 import iuh.fit.util.ConstantUtil;
 import iuh.fit.util.DateTimeFormatUtil;
 import iuh.fit.util.MoneyFormatUtil;
@@ -83,9 +85,9 @@ public class ThanhToanDialog extends JDialog implements ActionListener {
 	private Phong p;
 	private KhachHang kh;
 	private PhieuDatPhong pdp;
-	private final ChiTietPhieuDatPhongBUS ctpdpBUS = new ChiTietPhieuDatPhongBUS();
-	private final ChiTietDichVuBUS ctdvBUS = new ChiTietDichVuBUS();
-	private final PhieuDatPhongBUS pdpBUS = new PhieuDatPhongBUS();
+	private final ChiTietPhieuDatPhongDAO ctpdpDAO = (ChiTietPhieuDatPhongDAO) Client.getDAO("ChiTietPhieuDatPhongDAO");
+	private final ChiTietDichVuDAO ctdvDAO = (ChiTietDichVuDAO) Client.getDAO("ChiTietDichVuDAO");
+	private final PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
 
 	private double tienPhong = 0;
 	private double tienDichVu = 0;
@@ -275,7 +277,12 @@ public class ThanhToanDialog extends JDialog implements ActionListener {
 
 		if (o.equals(btnXacNhan)) {
 			// TODO: UNCOMMENT THIS WHEN DONE
-			pdpBUS.finishPhieuDatPhong(p.getMaPhong(), tienDichVu, tienPhong);
+			try {
+				pdpDAO.finishPhieuDatPhong(p.getMaPhong(), tienDichVu, tienPhong);
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 			if (chkXuatHoaDon.isSelected()) {
 				try {
@@ -363,63 +370,79 @@ public class ThanhToanDialog extends JDialog implements ActionListener {
 		model.setRowCount(0);
 
 		// Load booked rooms
-		pdp = ctpdpBUS.getChiTietPhieuDatPhongByActiveMaPhong(p.getMaPhong()).getPhieuDatPhong();
+		try {
+			pdp = ctpdpDAO.getChiTietPhieuDatPhongByActiveMaPhong(p.getMaPhong()).getPhieuDatPhong();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 
 		kh = pdp.getKhachHang();
 
-		List<ChiTietPhieuDatPhong> listCTPDP = ctpdpBUS
-				.getAllChiTietPhieuDatPhongByMaPhieuDatPhong(pdp.getMaPhieuDatPhong());
+		List<ChiTietPhieuDatPhong> listCTPDP;
+		try {
+			listCTPDP = ctpdpDAO.getAllChiTietPhieuDatPhongByMaPhieuDatPhong(pdp.getMaPhieuDatPhong());
 
-		int stt = 1;
+			int stt = 1;
 
-		for (ChiTietPhieuDatPhong ctpdp : listCTPDP) {
-			double phuPhi = ctpdp.getPhong().getLoaiPhong().getPhuPhi();
-			LocalDateTime thoiGianKetThuc;
+			for (ChiTietPhieuDatPhong ctpdp : listCTPDP) {
+				double phuPhi = ctpdp.getPhong().getLoaiPhong().getPhuPhi();
+				LocalDateTime thoiGianKetThuc;
 
-			if (ctpdp.getThoiGianKetThuc() == null) {
-				thoiGianKetThuc = LocalDateTime.now();
-			} else {
-				thoiGianKetThuc = ctpdp.getThoiGianKetThuc();
-			}
+				if (ctpdp.getThoiGianKetThuc() == null) {
+					thoiGianKetThuc = LocalDateTime.now();
+				} else {
+					thoiGianKetThuc = ctpdp.getThoiGianKetThuc();
+				}
 
-			double thanhTien = ChronoUnit.HOURS.between(ctpdp.getThoiGianBatDau(), thoiGianKetThuc)
-					* ConstantUtil.getStandardHourPrice(thoiGianKetThuc) + phuPhi;
+				double thanhTien = ChronoUnit.HOURS.between(ctpdp.getThoiGianBatDau(), thoiGianKetThuc)
+						* ConstantUtil.getStandardHourPrice(thoiGianKetThuc) + phuPhi;
 
-			Object[] rowData = { stt, "Phòng " + ctpdp.getPhong().getMaPhong(),
-					DateTimeFormatUtil.formatTimeBetween(ctpdp.getThoiGianBatDau(), thoiGianKetThuc), "", "",
-					MoneyFormatUtil.format(phuPhi), MoneyFormatUtil.format(thanhTien) };
-
-			model.addRow(rowData);
-			stt++;
-
-			// Handle sum values
-			tienPhong += thanhTien;
-			tongTien += thanhTien;
-
-			if (ctpdp.getThoiGianBatDau().isBefore(thoiGianBatDau)) {
-				thoiGianBatDau = ctpdp.getThoiGianBatDau();
-			}
-		}
-
-		// Load food
-		for (ChiTietPhieuDatPhong ctpdp : listCTPDP) {
-			List<ChiTietDichVu> listCTDV = ctdvBUS.getChiTietDichVuByMaPDPAndMaPhong(
-					ctpdp.getPhieuDatPhong().getMaPhieuDatPhong(), ctpdp.getPhong().getMaPhong());
-
-			for (ChiTietDichVu c : listCTDV) {
-				double thanhTien = c.getHangHoa().getDonGia() * c.getSoLuong();
-
-				Object[] rowData = { stt, c.getHangHoa().getTenHangHoa(), c.getSoLuong(),
-						MoneyFormatUtil.format(c.getHangHoa().getDonGia()),
-						c.getHangHoa().getLoaiHangHoa().getDonViTinh(), "", MoneyFormatUtil.format(thanhTien) };
+				Object[] rowData = { stt, "Phòng " + ctpdp.getPhong().getMaPhong(),
+						DateTimeFormatUtil.formatTimeBetween(ctpdp.getThoiGianBatDau(), thoiGianKetThuc), "", "",
+						MoneyFormatUtil.format(phuPhi), MoneyFormatUtil.format(thanhTien) };
 
 				model.addRow(rowData);
 				stt++;
 
 				// Handle sum values
-				tienDichVu += thanhTien;
+				tienPhong += thanhTien;
 				tongTien += thanhTien;
+
+				if (ctpdp.getThoiGianBatDau().isBefore(thoiGianBatDau)) {
+					thoiGianBatDau = ctpdp.getThoiGianBatDau();
+				}
 			}
+
+			// Load food
+			for (ChiTietPhieuDatPhong ctpdp : listCTPDP) {
+				List<ChiTietDichVu> listCTDV;
+				try {
+					listCTDV = ctdvDAO.getChiTietDichVuByMaPDPAndMaPhong(ctpdp.getPhieuDatPhong().getMaPhieuDatPhong(),
+							ctpdp.getPhong().getMaPhong());
+
+					for (ChiTietDichVu c : listCTDV) {
+						double thanhTien = c.getHangHoa().getDonGia() * c.getSoLuong();
+
+						Object[] rowData = { stt, c.getHangHoa().getTenHangHoa(), c.getSoLuong(),
+								MoneyFormatUtil.format(c.getHangHoa().getDonGia()),
+								c.getHangHoa().getLoaiHangHoa().getDonViTinh(), "", MoneyFormatUtil.format(thanhTien) };
+
+						model.addRow(rowData);
+						stt++;
+
+						// Handle sum values
+						tienDichVu += thanhTien;
+						tongTien += thanhTien;
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+
+			}
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
 	}
 }

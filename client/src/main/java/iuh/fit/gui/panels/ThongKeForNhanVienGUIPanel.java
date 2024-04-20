@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.rmi.RemoteException;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.Date;
@@ -36,13 +37,14 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
 
-import com.nhom17.quanlykaraoke.bus.PhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.entities.PhieuDatPhong;
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
 
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.PhieuDatPhongDAO;
+import iuh.fit.entity.PhieuDatPhong;
 import iuh.fit.util.ConstantUtil;
 import iuh.fit.util.DateTimeFormatUtil;
 import iuh.fit.util.MoneyFormatUtil;
@@ -73,7 +75,7 @@ public class ThongKeForNhanVienGUIPanel extends JPanel implements ActionListener
 	private final JMonthChooser monthChooser = new JMonthChooser();
 
 	// VARIABLES
-	private static final PhieuDatPhongBUS pdpBUS = new PhieuDatPhongBUS();
+	private static final PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
 	private double doanhThuTrungBinh = 0;
 	private double tongDoanhThu = 0;
 	private int tongHoaDon = 0;
@@ -87,6 +89,7 @@ public class ThongKeForNhanVienGUIPanel extends JPanel implements ActionListener
 	/**
 	 *
 	 */
+	@SuppressWarnings("deprecation")
 	public ThongKeForNhanVienGUIPanel() {
 		setSize(1200, 800);
 		setLayout(new BorderLayout(0, 0));
@@ -428,8 +431,8 @@ public class ThongKeForNhanVienGUIPanel extends JPanel implements ActionListener
 		tongHoaDon = 0;
 		tongTienPhong = 0;
 		tongTienDichVu = 0;
-		doanhThuPhongThuong = 0;
-		doanhThuPhongVIP = 0;
+		setDoanhThuPhongThuong(0);
+		setDoanhThuPhongVIP(0);
 
 		lblTongHoaDon.setText("Tổng số hóa đơn: 0");
 		lblTongTienPhong.setText("Tổng tiền phòng: 0");
@@ -476,55 +479,79 @@ public class ThongKeForNhanVienGUIPanel extends JPanel implements ActionListener
 		// Reset all fields
 		resetAllStatistics();
 
-		List<PhieuDatPhong> listPDP = pdpBUS.getAllPhieuDatPhongFromDateByNhanVien(maNV,
-				DateTimeFormatUtil.formatDateToLocalDate(fromDate).atStartOfDay(),
-				DateTimeFormatUtil.formatDateToLocalDate(toDate).atStartOfDay());
+		List<PhieuDatPhong> listPDP;
+		try {
+			listPDP = pdpDAO.getAllPhieuDatPhongFromDateByNhanVien(maNV,
+					DateTimeFormatUtil.formatDateToLocalDate(fromDate).atStartOfDay(),
+					DateTimeFormatUtil.formatDateToLocalDate(toDate).atStartOfDay());
+			System.out.println("Số PĐP" + ": " + listPDP.size());
 
-		System.out.println("Số PĐP" + ": " + listPDP.size());
+			// Handle data
+			handleCalculateData(listPDP);
 
-		// Handle data
-		handleCalculateData(listPDP);
+			// Handle set labels
+			handleSetLabel();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		// Handle set labels
-		handleSetLabel();
 	}
 
 	private void handleThongKeByMonth(int month) {
 		// Reset all fields
 		resetAllStatistics();
 
-		List<PhieuDatPhong> listPDP = pdpBUS.getAllPhieuDatPhongByMonthByNhanVien(maNV, month);
+		List<PhieuDatPhong> listPDP;
+		try {
+			listPDP = pdpDAO.getAllPhieuDatPhongByMonthByNhanVien(maNV, month);
+			// Calculate data
+			handleCalculateData(listPDP);
 
-		// Calculate data
-		handleCalculateData(listPDP);
+			// Set label
+			handleSetLabel();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		// Set label
-		handleSetLabel();
 	}
 
 	private void handleThongKeByYear(int year) {
 		// Reset all fields
 		resetAllStatistics();
 
-		List<PhieuDatPhong> listPDP = pdpBUS.getAllPhieuDatPhongByYearByNhanVien(maNV, year);
+		List<PhieuDatPhong> listPDP;
+		try {
+			listPDP = pdpDAO.getAllPhieuDatPhongByYearByNhanVien(maNV, year);
+			// Calculate data
+			handleCalculateData(listPDP);
 
-		// Calculate data
-		handleCalculateData(listPDP);
+			// Set label
+			handleSetLabel();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		// Set label
-		handleSetLabel();
 	}
 
 	private static CategoryDataset createDataset() {
 		// Load each month data to chart
 		for (int i = 1; i <= 12; i++) {
 			int doanhThu = 0;
-			List<PhieuDatPhong> listPhieuDatPhong = pdpBUS.getAllPhieuDatPhongByMonthByNhanVien(maNV, i);
-			for (PhieuDatPhong pdp : listPhieuDatPhong) {
-				double tongTien = pdp.getTienDichVu() + pdp.getTienPhong();
-				doanhThu += tongTien;
+			List<PhieuDatPhong> listPhieuDatPhong;
+			try {
+				listPhieuDatPhong = pdpDAO.getAllPhieuDatPhongByMonthByNhanVien(maNV, i);
+				for (PhieuDatPhong pdp : listPhieuDatPhong) {
+					double tongTien = pdp.getTienDichVu() + pdp.getTienPhong();
+					doanhThu += tongTien;
+				}
+				dataset.addValue(doanhThu, "Doanh thu", "Tháng " + i);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			dataset.addValue(doanhThu, "Doanh thu", "Tháng " + i);
 		}
 
 		return dataset;
@@ -546,5 +573,33 @@ public class ThongKeForNhanVienGUIPanel extends JPanel implements ActionListener
 				cl.show(panelFilters, "filtersNam");
 			}
 		}
+	}
+
+	/**
+	 * @return the doanhThuPhongThuong
+	 */
+	public double getDoanhThuPhongThuong() {
+		return doanhThuPhongThuong;
+	}
+
+	/**
+	 * @param doanhThuPhongThuong the doanhThuPhongThuong to set
+	 */
+	public void setDoanhThuPhongThuong(double doanhThuPhongThuong) {
+		this.doanhThuPhongThuong = doanhThuPhongThuong;
+	}
+
+	/**
+	 * @return the doanhThuPhongVIP
+	 */
+	public double getDoanhThuPhongVIP() {
+		return doanhThuPhongVIP;
+	}
+
+	/**
+	 * @param doanhThuPhongVIP the doanhThuPhongVIP to set
+	 */
+	public void setDoanhThuPhongVIP(double doanhThuPhongVIP) {
+		this.doanhThuPhongVIP = doanhThuPhongVIP;
 	}
 }

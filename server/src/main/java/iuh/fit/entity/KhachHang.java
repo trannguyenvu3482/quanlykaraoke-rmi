@@ -121,4 +121,9 @@ public class KhachHang implements Serializable {
 		this.hoTen = hoTen;
 	}
 
+	@Override
+	public String toString() {
+		return "KhachHang [maKhachHang=" + maKhachHang + ", hoTen=" + hoTen + ", soDienThoai=" + soDienThoai + ", CCCD="
+				+ CCCD + "]";
+	}
 }

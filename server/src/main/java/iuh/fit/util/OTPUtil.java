@@ -1,5 +1,7 @@
 package iuh.fit.util;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -13,12 +15,14 @@ import io.github.cdimascio.dotenv.Dotenv;
  * @version 1.0
  * @created 11-Oct-2023 21:31:00
  */
-public class OTPUtil {
-	public static String accountSID = "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
-	public static String authToken = "your_auth_token";
-	private static HashMap<String, String> OTPMap = new HashMap<>();
+public class OTPUtil extends UnicastRemoteObject implements OTPService {
 
-	static {
+	private static final long serialVersionUID = 1L;
+	private String accountSID = "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+	private String authToken = "your_auth_token";
+	private HashMap<String, String> OTPMap = new HashMap<>();
+
+	public OTPUtil() throws RemoteException {
 		Dotenv dotenv = Dotenv.configure().directory(".").load();
 
 		accountSID = dotenv.get("TWILIO_ACCOUNT_SID");
@@ -27,12 +31,12 @@ public class OTPUtil {
 		OTPMap = new HashMap<>();
 	}
 
-	public static String createRandomOTP() {
+	public String createRandomOTP() {
 		Random random = new Random();
 		return String.format("%06d", random.nextInt(1000000));
 	}
 
-	public static void addToOTPMap(String phoneNumber, String otp) {
+	public void addToOTPMap(String phoneNumber, String otp) {
 		if (OTPMap.containsKey(phoneNumber)) {
 			OTPMap.put(phoneNumber, otp);
 			return;
@@ -41,7 +45,7 @@ public class OTPUtil {
 		OTPMap.put(phoneNumber, otp);
 	}
 
-	public static String sendSMS(String toPhoneNumber) {
+	public String sendSMS(String toPhoneNumber) {
 		// Create OTP
 		String otp = createRandomOTP();
 		addToOTPMap(toPhoneNumber.trim(), otp);
@@ -65,7 +69,7 @@ public class OTPUtil {
 		}
 	}
 
-	public static boolean checkOTP(String phoneNumber, String otp) {
+	public boolean checkOTP(String phoneNumber, String otp) {
 		System.out.println("OTP MAP: " + OTPMap.toString());
 
 		if (!OTPMap.containsKey(phoneNumber.trim())) {

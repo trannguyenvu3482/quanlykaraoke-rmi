@@ -5,6 +5,10 @@ package iuh.fit.client;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.UIManager;
 
@@ -26,9 +30,29 @@ import iuh.fit.gui.dialogs.SplashScreenDialog;
  */
 public class Client {
 	private static final String URL = "rmi://localhost:8001/";
+	protected static Map<String, Object> daos;
+	protected static Map<String, Object> utils;
 
 	public static void main(String[] args) throws Exception {
 		// Setup RMI to get DAOs from server
+		daos = new HashMap<>();
+		utils = new HashMap<>();
+
+		// Get DAOs from server and put into Map
+		daos.put("ChiTietDichVuDAO", Naming.lookup(URL + "ChiTietDichVuDAO"));
+		daos.put("ChiTietPhieuDatPhongDAO", Naming.lookup(URL + "ChiTietPhieuDatPhongDAO"));
+		daos.put("ChucVuDAO", Naming.lookup(URL + "ChucVuDAO"));
+		daos.put("HangHoaDAO", Naming.lookup(URL + "HangHoaDAO"));
+		daos.put("KhachHangDAO", Naming.lookup(URL + "KhachHangDAO"));
+		daos.put("LoaiHangHoaDAO", Naming.lookup(URL + "LoaiHangHoaDAO"));
+		daos.put("LoaiPhongDAO", Naming.lookup(URL + "LoaiPhongDAO"));
+		daos.put("NhanVienDAO", Naming.lookup(URL + "NhanVienDAO"));
+		daos.put("PhieuDatPhongDAO", Naming.lookup(URL + "PhieuDatPhongDAO"));
+		daos.put("PhongDAO", Naming.lookup(URL + "PhongDAO"));
+
+		// Get utils from server and put into Map
+		utils.put("OTPUtil", Naming.lookup(URL + "OTPUtil"));
+		utils.put("PasswordUtil", Naming.lookup(URL + "PasswordUtil"));
 
 		// Setup Flatlaf
 		setupFlatLaf();
@@ -60,9 +84,14 @@ public class Client {
 							main.setLogoutListener(() -> showLoginScreen());
 							main.setVisible(true);
 						} else {
-							NhanVienGUI main = new NhanVienGUI(userId);
-							main.setLogoutListener(() -> showLoginScreen());
-							main.setVisible(true);
+							NhanVienGUI main;
+							try {
+								main = new NhanVienGUI(userId);
+								main.setLogoutListener(() -> showLoginScreen());
+								main.setVisible(true);
+							} catch (RemoteException e1) {
+								e1.printStackTrace();
+							}
 						}
 					}
 				});
@@ -71,6 +100,14 @@ public class Client {
 
 			}
 		});
+	}
+
+	public static Object getDAO(String name) {
+		return daos.get(name);
+	}
+
+	public static Object getUtil(String name) {
+		return utils.get(name);
 	}
 
 	/**
@@ -98,9 +135,14 @@ public class Client {
 						main.setLogoutListener(() -> showLoginScreen());
 						main.setVisible(true);
 					} else {
-						NhanVienGUI main = new NhanVienGUI(id);
-						main.setLogoutListener(() -> showLoginScreen());
-						main.setVisible(true);
+						NhanVienGUI main;
+						try {
+							main = new NhanVienGUI(id);
+							main.setLogoutListener(() -> showLoginScreen());
+							main.setVisible(true);
+						} catch (RemoteException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			});

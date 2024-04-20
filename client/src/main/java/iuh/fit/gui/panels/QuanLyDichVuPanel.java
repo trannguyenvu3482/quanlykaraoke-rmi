@@ -14,6 +14,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,11 +31,11 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignP;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
 
-import com.nhom17.quanlykaraoke.bus.PhongBUS;
-import com.nhom17.quanlykaraoke.entities.Phong;
-
+import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
 import iuh.fit.common.PhieuDatPhongPage;
+import iuh.fit.dao.PhongDAO;
+import iuh.fit.entity.Phong;
 import iuh.fit.util.ConstantUtil;
 import net.miginfocom.swing.MigLayout;
 import raven.toast.Notifications;
@@ -71,7 +72,7 @@ public class QuanLyDichVuPanel extends JPanel implements ActionListener {
 	private final JLabel lblPhongKhongHD = new JLabel("Phòng không hoạt động: 0");
 
 	// VARIABLES
-	private final PhongBUS pBUS = new PhongBUS();
+	private final PhongDAO phongDAO = (PhongDAO) Client.getDAO("PhongDAO");
 	private int currentPage = 1;
 	private int maxPageSize = -1;
 	private List<Phong> listRooms = new ArrayList<>();
@@ -152,18 +153,22 @@ public class QuanLyDichVuPanel extends JPanel implements ActionListener {
 
 			panel.removeAll();
 
-			RoomPanel roomPanel = new RoomPanel(room);
+			RoomPanel roomPanel;
+			try {
+				roomPanel = new RoomPanel(room);
+				roomPanel.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(MouseEvent e) {
+						handleRoomClick(roomPanel);
+					}
+				});
 
-			roomPanel.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					handleRoomClick(roomPanel);
-				}
-			});
-
-			panel.add(roomPanel);
-			panel.setVisible(true);
-
+				panel.add(roomPanel);
+				panel.setVisible(true);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 	}
 
@@ -304,27 +309,31 @@ public class QuanLyDichVuPanel extends JPanel implements ActionListener {
 	 */
 	private void refreshRoomList() {
 		// TODO Auto-generated method stub
-		this.listRooms = pBUS.getAllPhongs();
-		this.listEmptyRooms = pBUS.getAllEmptyPhongs();
+		try {
+			this.listRooms = phongDAO.getAllPhongs();
+			this.listEmptyRooms = phongDAO.getAllEmptyPhongs();
 
-		// Handle empty rooms
-		listBookedRooms.clear();
-		listRooms.forEach(room -> {
-			if (!listEmptyRooms.contains(room)) {
-				listBookedRooms.add(room);
+			// Handle empty rooms
+			listBookedRooms.clear();
+			listRooms.forEach(room -> {
+				if (!listEmptyRooms.contains(room)) {
+					listBookedRooms.add(room);
+				}
+			});
+
+			System.out.println("Tổng số phòng: " + listRooms.size());
+			System.out.println("Số phòng trống: " + listEmptyRooms.size());
+			if (listBookedRooms != null) {
+				System.out.println("Số phòng được đặt: " + listBookedRooms.size());
 			}
-		});
 
-		System.out.println("Tổng số phòng: " + listRooms.size());
-		System.out.println("Số phòng trống: " + listEmptyRooms.size());
-		if (listBookedRooms != null) {
-			System.out.println("Số phòng được đặt: " + listBookedRooms.size());
+			lblChuaDat.setText("Phòng chưa có người đặt: " + listEmptyRooms.size());
+			lblDaDat.setText("Phòng đã có người đặt: " + listBookedRooms.size());
+			lblPhongKhongHD.setText(
+					"Phòng không hoạt dộng: " + (listRooms.size() - listBookedRooms.size() - listEmptyRooms.size()));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-		lblChuaDat.setText("Phòng chưa có người đặt: " + listEmptyRooms.size());
-		lblDaDat.setText("Phòng đã có người đặt: " + listBookedRooms.size());
-		lblPhongKhongHD.setText(
-				"Phòng không hoạt dộng: " + (listRooms.size() - listBookedRooms.size() - listEmptyRooms.size()));
 	}
 
 	/**

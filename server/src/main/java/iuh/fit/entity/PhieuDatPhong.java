@@ -1,5 +1,6 @@
 package iuh.fit.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -16,12 +17,12 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "PhieuDatPhong")
-public class PhieuDatPhong {
+public class PhieuDatPhong implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2527961108053206660L;
 
 	@Id
 	@Column(name = "maPhieuDatPhong", columnDefinition = "char(7)")

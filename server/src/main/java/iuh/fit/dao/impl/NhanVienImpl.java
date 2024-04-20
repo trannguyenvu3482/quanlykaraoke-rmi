@@ -16,6 +16,7 @@ import org.hibernate.query.Query;
 import iuh.fit.dao.NhanVienDAO;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.util.HibernateUtil;
+import iuh.fit.util.PasswordUtil;
 
 /**
  * @author Trần Nguyên Vũ
@@ -45,6 +46,7 @@ public class NhanVienImpl extends UnicastRemoteObject implements NhanVienDAO, Se
 			return true;
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			t.rollback();
 			return false;
 		}
@@ -204,6 +206,27 @@ public class NhanVienImpl extends UnicastRemoteObject implements NhanVienDAO, Se
 			System.out.println("ROLLBACK!");
 			t.rollback();
 			return listNhanVien;
+		}
+	}
+
+	@Override
+	public boolean checkDangNhap(String maNV, String password) {
+		Session session = factory.getCurrentSession();
+		Transaction t = session.beginTransaction();
+
+		try {
+			NhanVien nv = session.get(NhanVien.class, maNV);
+
+			if (nv != null) {
+				t.commit();
+				return new PasswordUtil().check(password, nv.getMatKhau());
+			} else {
+				t.rollback();
+				return false;
+			}
+		} catch (Exception e) {
+			t.rollback();
+			return false;
 		}
 	}
 }

@@ -17,10 +17,14 @@ import iuh.fit.entity.PhieuDatPhong;
 import iuh.fit.entity.Phong;
 import iuh.fit.util.HibernateUtil;
 
-public class PhieuDatPhongImpl extends UnicastRemoteObject implements PhieuDatPhongDAO, Serializable{
+public class PhieuDatPhongImpl extends UnicastRemoteObject implements PhieuDatPhongDAO, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5352184258247048957L;
 	private SessionFactory factory = null;
 
-	public PhieuDatPhongImpl() throws RemoteException{
+	public PhieuDatPhongImpl() throws RemoteException {
 		factory = HibernateUtil.getMySessionFactory();
 	}
 
@@ -204,7 +208,6 @@ public class PhieuDatPhongImpl extends UnicastRemoteObject implements PhieuDatPh
 		}
 	}
 
-	
 	public List<PhieuDatPhong> getAllPhieuDatPhongByMonthByKhachHang(String maKH, int month) {
 		Session session = factory.getCurrentSession();
 		Transaction t = session.beginTransaction();
@@ -380,7 +383,7 @@ public class PhieuDatPhongImpl extends UnicastRemoteObject implements PhieuDatPh
 		}
 	}
 
-	private String getNextMaPDP() {
+	public String getNextMaPDP() {
 		String idPrefix = "PDP";
 
 		int count = countPhieuDatPhong();
@@ -392,7 +395,7 @@ public class PhieuDatPhongImpl extends UnicastRemoteObject implements PhieuDatPh
 		return idPrefix + String.format("%04d", count + 1);
 	}
 
-	private int countPhieuDatPhong() {
+	public int countPhieuDatPhong() {
 		Session session = factory.getCurrentSession();
 
 		try {

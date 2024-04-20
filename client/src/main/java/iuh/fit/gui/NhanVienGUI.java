@@ -23,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -44,11 +45,11 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignS;
 
-import com.nhom17.quanlykaraoke.bus.NhanVienBUS;
-
+import iuh.fit.client.Client;
 import iuh.fit.common.MainPanelButton;
 import iuh.fit.common.MyFrame;
 import iuh.fit.common.MyIcon;
+import iuh.fit.dao.NhanVienDAO;
 import iuh.fit.gui.panels.QuanLyDichVuPanel;
 import iuh.fit.gui.panels.QuanLyPhieuDatPhongPanel;
 import iuh.fit.gui.panels.ThongKeForNhanVienGUIPanel;
@@ -121,16 +122,17 @@ public class NhanVienGUI extends MyFrame implements ActionListener {
 	private final Component verticalStrut = Box.createVerticalStrut(20);
 
 	// VARIABLES
-	private NhanVienBUS nvBUS = new NhanVienBUS();
+	private NhanVienDAO nhanVienDAO = (NhanVienDAO) Client.getDAO("nhanVienDAO");
 	private boolean isSidebarMinimized = false;
 	private final int screenWidth = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
 			.getDisplayMode().getWidth();
 	private LogoutListener logoutListener;
 	private final Component verticalStrut_1_1_2 = Box.createVerticalStrut(20);
 
-	public NhanVienGUI(String maNV) {
+	@SuppressWarnings("deprecation")
+	public NhanVienGUI(String maNV) throws RemoteException {
 		// Init
-		ConstantUtil.currentNhanVien = nvBUS.getNhanVien(maNV);
+		ConstantUtil.currentNhanVien = nhanVienDAO.getNhanVien(maNV);
 		Notifications.getInstance().setJFrame(this);
 
 		final JPanel xemThongTinCaNhanPanel = new XemThongTinCaNhanPanel(ConstantUtil.currentNhanVien);
@@ -164,7 +166,6 @@ public class NhanVienGUI extends MyFrame implements ActionListener {
 			// Display circular image
 			avatar = new ImageIcon(bi.getScaledInstance(200, 200, Image.SCALE_SMOOTH));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

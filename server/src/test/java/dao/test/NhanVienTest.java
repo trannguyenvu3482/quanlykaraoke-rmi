@@ -15,10 +15,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import iuh.fit.dao.ChucVuDAO;
 import iuh.fit.dao.NhanVienDAO;
+import iuh.fit.dao.impl.ChucVuImpl;
 import iuh.fit.dao.impl.NhanVienImpl;
-import iuh.fit.entity.ChucVu;
 import iuh.fit.entity.NhanVien;
+import iuh.fit.util.ConstantUtil;
+import iuh.fit.util.HibernateUtil;
 import iuh.fit.util.PasswordUtil;
 
 /**
@@ -30,16 +33,20 @@ import iuh.fit.util.PasswordUtil;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NhanVienTest {
 	static NhanVienDAO nhanVienDAO;
+	static ChucVuDAO chucVuDAO;
 
 	@BeforeAll
 	public static void init() throws RemoteException {
+		HibernateUtil.provideSessionFactory();
 		nhanVienDAO = new NhanVienImpl();
+		chucVuDAO = new ChucVuImpl();
 	}
 
 	@Test
 	void testAddNhanVien() throws RemoteException {
-		NhanVien nhanVien = new NhanVien("Nguyễn Văn Z", 0, PasswordUtil.encrypt("123"), LocalDate.of(2003, 10, 14),
-				new ChucVu(), "0903252508", "079203012315");
+		NhanVien nhanVien = new NhanVien("Nguyễn Văn Z", 0, new PasswordUtil().encrypt("123"),
+				LocalDate.of(2003, 10, 14), chucVuDAO.getChucVu("CV001"), "0792031511", "079203012315",
+				ConstantUtil.getDefaultMaleAvatar());
 		boolean result = nhanVienDAO.addNhanVien(nhanVien);
 
 		assertEquals(true, result);
@@ -48,6 +55,10 @@ class NhanVienTest {
 	@Test
 	void testGetAllNhanVien() throws RemoteException {
 		List<NhanVien> listNhanVien = nhanVienDAO.getAllNhanViens();
+
+		for (NhanVien nhanVien : listNhanVien) {
+			System.out.println(nhanVien);
+		}
 
 		assertNotNull(listNhanVien);
 	}

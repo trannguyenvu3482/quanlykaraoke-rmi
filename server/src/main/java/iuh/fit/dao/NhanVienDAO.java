@@ -28,4 +28,6 @@ public interface NhanVienDAO extends Remote {
 	public NhanVien updateNV(NhanVien nv) throws RemoteException;
 
 	public List<NhanVien> getNhanViensByDOB(String dateFrom, String dateTo) throws RemoteException;
+
+	public boolean checkDangNhap(String maNV, String matKhau) throws RemoteException;
 }

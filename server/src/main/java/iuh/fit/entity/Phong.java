@@ -50,7 +50,6 @@ public class Phong implements Serializable {
 	}
 
 	public Phong() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**

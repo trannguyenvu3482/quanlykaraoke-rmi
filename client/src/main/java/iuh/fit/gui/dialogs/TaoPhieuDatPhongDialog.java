@@ -20,12 +20,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.MaskFormatter;
 
-import com.nhom17.quanlykaraoke.bus.KhachHangBUS;
-import com.nhom17.quanlykaraoke.bus.PhieuDatPhongBUS;
-import com.nhom17.quanlykaraoke.entities.KhachHang;
-import com.nhom17.quanlykaraoke.entities.PhieuDatPhong;
-import com.nhom17.quanlykaraoke.entities.Phong;
-
+import iuh.fit.client.Client;
+import iuh.fit.dao.KhachHangDAO;
+import iuh.fit.dao.PhieuDatPhongDAO;
+import iuh.fit.entity.KhachHang;
+import iuh.fit.entity.PhieuDatPhong;
+import iuh.fit.entity.Phong;
 import iuh.fit.util.ConstantUtil;
 import raven.toast.Notifications;
 import raven.toast.Notifications.Location;
@@ -47,8 +47,8 @@ public class TaoPhieuDatPhongDialog extends JDialog implements ActionListener {
 	private final JLabel lblTenPhong = new JLabel("Tên phòng: Phòng ");
 
 	// VARIABLES
-	private final KhachHangBUS khBUS = new KhachHangBUS();
-	private final PhieuDatPhongBUS pdpBUS = new PhieuDatPhongBUS();
+	private final KhachHangDAO khDAO = (KhachHangDAO) Client.getDAO("KhachHangDAO");
+	private final PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
 	private Phong phong = null;
 	private boolean isChecked = false;
 	private KhachHang kh = null;
@@ -93,45 +93,51 @@ public class TaoPhieuDatPhongDialog extends JDialog implements ActionListener {
 	 * 
 	 */
 	private void handleLapPhieu() {
-		kh = khBUS.getKhachHangBySDT(txtSDT.getText().trim());
+		try {
+			kh = khDAO.getKhachHangBySDT(txtSDT.getText().trim());
 
-		// Khách hàng cũ
-		if (!isChecked && kh != null) {
-			txtHoTen.setText(kh.getHoTen());
-			txtCCCD.setText(kh.getCCCD());
+			// Khách hàng cũ
+			if (!isChecked && kh != null) {
+				txtHoTen.setText(kh.getHoTen());
+				txtCCCD.setText(kh.getCCCD());
 
-			Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
-					"Đã tìm thấy khách hàng có số điện thoại " + kh.getSoDienThoai() + "!");
-
-			isChecked = true;
-			return;
-		} else if (!isChecked && kh == null) {
-			if (txtSDT.getText().trim().matches("^0\\d{9}$") && txtCCCD.getText().trim().matches("^0\\d{11}$")
-					&& txtHoTen.getText().trim().matches("^\\p{Lu}\\p{Ll}+(\\s+\\p{Lu}\\p{Ll}+)+$")) {
-				kh = new KhachHang(txtHoTen.getText().trim(), txtSDT.getText().trim(), txtCCCD.getText().trim());
-
-				khBUS.addKhachHang(kh);
 				Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
-						"Đã thêm khách hàng " + kh.getHoTen() + "!");
+						"Đã tìm thấy khách hàng có số điện thoại " + kh.getSoDienThoai() + "!");
 
 				isChecked = true;
-			} else {
-				Notifications.getInstance().show(raven.toast.Notifications.Type.ERROR, Location.BOTTOM_RIGHT,
-						"Số điện thoại hoặc CCCD hoặc họ tên không đúng định dạng");
-
-				isChecked = false;
 				return;
+			} else if (!isChecked && kh == null) {
+				if (txtSDT.getText().trim().matches("^0\\d{9}$") && txtCCCD.getText().trim().matches("^0\\d{11}$")
+						&& txtHoTen.getText().trim().matches("^\\p{Lu}\\p{Ll}+(\\s+\\p{Lu}\\p{Ll}+)+$")) {
+					kh = new KhachHang(txtHoTen.getText().trim(), txtSDT.getText().trim(), txtCCCD.getText().trim());
+
+					khDAO.addKhachHang(kh);
+					Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
+							"Đã thêm khách hàng " + kh.getHoTen() + "!");
+
+					isChecked = true;
+				} else {
+					Notifications.getInstance().show(raven.toast.Notifications.Type.ERROR, Location.BOTTOM_RIGHT,
+							"Số điện thoại hoặc CCCD hoặc họ tên không đúng định dạng");
+
+					isChecked = false;
+					return;
+				}
+
 			}
 
-		}
+			PhieuDatPhong pdp = new PhieuDatPhong("", ConstantUtil.currentNhanVien, false, kh);
+			if (pdpDAO.addPhieuDatPhong(pdp, phong)) {
+				Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
+						"Đã thêm phiếu đặt phòng thành công");
 
-		PhieuDatPhong pdp = new PhieuDatPhong("", ConstantUtil.currentNhanVien, false, kh);
-		if (pdpBUS.addPhieuDatPhong(pdp, phong)) {
-			Notifications.getInstance().show(raven.toast.Notifications.Type.SUCCESS, Location.BOTTOM_RIGHT,
-					"Đã thêm phiếu đặt phòng thành công");
-
-			dispose();
-		} else {
+				dispose();
+			} else {
+				Notifications.getInstance().show(raven.toast.Notifications.Type.ERROR, Location.BOTTOM_RIGHT,
+						"Đã có lỗi khi thêm phiếu đặt phòng");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 			Notifications.getInstance().show(raven.toast.Notifications.Type.ERROR, Location.BOTTOM_RIGHT,
 					"Đã có lỗi khi thêm phiếu đặt phòng");
 		}
