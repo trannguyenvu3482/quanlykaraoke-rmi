@@ -91,8 +91,8 @@ public class NhanVienGUI extends MyFrame implements ActionListener {
 	private final Component verticalStrut_1 = Box.createVerticalStrut(20);
 	private final Box hBoxPanelBtn2 = Box.createHorizontalBox();
 	private final JPanel panelContent = new JPanel();
-	private final JPanel quanLyPDPPanel = (JPanel) new QuanLyPhieuDatPhongPanel();
-	private final JPanel quanLyDichVuPanel = (JPanel) new QuanLyDichVuPanel();
+	private final JPanel quanLyPDPPanel = new QuanLyPhieuDatPhongPanel();
+	private final JPanel quanLyDichVuPanel = new QuanLyDichVuPanel();
 	private final JPanel thongKePanel;
 	private final MainPanelButton mainPanelButton = new MainPanelButton(1280, 20, "Quản lý dịch vụ",
 			MaterialDesignS.SILVERWARE_FORK_KNIFE, quanLyDichVuPanel, panelContent);
@@ -122,7 +122,7 @@ public class NhanVienGUI extends MyFrame implements ActionListener {
 	private final Component verticalStrut = Box.createVerticalStrut(20);
 
 	// VARIABLES
-	private NhanVienDAO nhanVienDAO = (NhanVienDAO) Client.getDAO("nhanVienDAO");
+	private NhanVienDAO nhanVienDAO = (NhanVienDAO) Client.getDAO("NhanVienDAO");
 	private boolean isSidebarMinimized = false;
 	private final int screenWidth = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
 			.getDisplayMode().getWidth();

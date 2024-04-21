@@ -87,7 +87,7 @@ public class QuanLyPhieuDatPhongPanel extends JPanel implements ActionListener {
 	private final JLabel lblPhongKhongHD = new JLabel("Phòng không hoạt động: 0");
 
 	// VARIABLES
-	private final PhongDAO pDAO = (PhongDAO) Client.getDAO("PhongDAO");
+	private transient PhongDAO pDAO;
 	private int currentPage = 1;
 	private int maxPageSize = -1;
 	private List<Phong> listRooms = new ArrayList<Phong>();
@@ -105,6 +105,9 @@ public class QuanLyPhieuDatPhongPanel extends JPanel implements ActionListener {
 	 * Instantiates a new quan ly phieu dat phong panel.
 	 */
 	public QuanLyPhieuDatPhongPanel() {
+		// Initialize DAO
+		pDAO = (PhongDAO) Client.getDAO("PhongDAO");
+
 		// Create the UI
 		initUI();
 
@@ -402,6 +405,11 @@ public class QuanLyPhieuDatPhongPanel extends JPanel implements ActionListener {
 		// TODO Auto-generated method stub
 		try {
 			this.listRooms = pDAO.getAllPhongs();
+
+			for (Phong phong : listRooms) {
+				System.out.println(phong.getMaPhong());
+			}
+
 			this.listEmptyRooms = pDAO.getAllEmptyPhongs();
 			// Handle empty rooms
 			listBookedRooms.clear();

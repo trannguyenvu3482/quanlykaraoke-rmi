@@ -13,7 +13,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 
 /**
  * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
@@ -21,7 +20,6 @@ import jakarta.persistence.Table;
  * @created 10-Oct-2023 13:36:00
  */
 @Entity
-@Table(name = "NhanVien")
 public class NhanVien implements Serializable {
 
 	/**
@@ -93,9 +91,9 @@ public class NhanVien implements Serializable {
 
 		this.trangThai = true;
 	}
-	
-	public NhanVien(String maNhanVien,String hoTen, int gioiTinh, String matKhau, LocalDate ngaySinh, ChucVu chucVu, String soDienThoai,
-			String cCCD, byte[] anhDaiDien,boolean trangThai) {
+
+	public NhanVien(String maNhanVien, String hoTen, int gioiTinh, String matKhau, LocalDate ngaySinh, ChucVu chucVu,
+			String soDienThoai, String cCCD, byte[] anhDaiDien, boolean trangThai) {
 		this.maNhanVien = maNhanVien;
 		this.hoTen = hoTen;
 		this.gioiTinh = gioiTinh;
@@ -109,8 +107,6 @@ public class NhanVien implements Serializable {
 
 		this.trangThai = trangThai;
 	}
-
-	
 
 	@Override
 	public int hashCode() {

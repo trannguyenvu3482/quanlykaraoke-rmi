@@ -43,7 +43,7 @@ public class HibernateUtil {
 		config.setProperty("hibernate.connection.password", password);
 
 		// Eager loading
-		config.setProperty("hibernate.enable_lazy_load_no_trans", "true");
+		config.setProperty("hibernate.enable_lazy_load_no_trans", "false");
 
 		// Add annotated classes
 		config.addAnnotatedClass(ChiTietPhieuDatPhong.class);

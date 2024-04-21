@@ -72,7 +72,7 @@ public class QuanLyDichVuPanel extends JPanel implements ActionListener {
 	private final JLabel lblPhongKhongHD = new JLabel("Phòng không hoạt động: 0");
 
 	// VARIABLES
-	private final PhongDAO phongDAO = (PhongDAO) Client.getDAO("PhongDAO");
+	private transient PhongDAO phongDAO = (PhongDAO) Client.getDAO("PhongDAO");
 	private int currentPage = 1;
 	private int maxPageSize = -1;
 	private List<Phong> listRooms = new ArrayList<>();

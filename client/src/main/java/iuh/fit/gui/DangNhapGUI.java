@@ -34,15 +34,7 @@ import iuh.fit.client.Client;
 import iuh.fit.common.MyIcon;
 import iuh.fit.dao.NhanVienDAO;
 import iuh.fit.entity.NhanVien;
-
-//import com.nhom17.quanlykaraoke.dao.NhanVienDAO;
-//import com.nhom17.quanlykaraoke.entities.NhanVien;
-
-// import com.nhom17.quanlykaraoke.bus.DangNhapDAO;
-// import com.nhom17.quanlykaraoke.dao.NhanVienDAO;
-// import com.nhom17.quanlykaraoke.entities.NhanVien;
-
-import iuh.fit.util.OTPUtil;
+import iuh.fit.util.OTPService;
 import iuh.fit.util.PasswordUtil;
 import raven.toast.Notifications;
 
@@ -78,7 +70,7 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 	private final JButton btnReturn = new JButton("");
 	private final JButton btnResetPassword = new JButton("Tạo mật khẩu mới");
 
-	private final OTPUtil OTPUtil = (OTPUtil) Client.getUtil("OTPUtil");
+	private final OTPService OTPService = (OTPService) Client.getUtil("OTPUtil");
 
 	// VARIABLES
 	private final NhanVienDAO nhanVienDAO = (NhanVienDAO) Client.getDAO("NhanVienDAO");
@@ -361,7 +353,7 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 				currentForgotPasswordNV = nv;
 
 				phoneNo = "+84" + txtPhoneNo.getText().substring(1);
-				OTPUtil.sendSMS(phoneNo);
+				OTPService.sendSMS(phoneNo);
 				System.out.println("Send SMS to: " + phoneNo);
 				timeoutBtnGetOTP();
 				Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
@@ -375,7 +367,7 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 			try {
 				System.out.println("phoneNo: " + phoneNo);
 
-				if (OTPUtil.checkOTP(phoneNo, txtOTP.getText().trim())) {
+				if (OTPService.checkOTP(phoneNo, txtOTP.getText().trim())) {
 					currentForgotPasswordNV.setMatKhau(PasswordUtil.encrypt(txtNewPassword.getText().trim()));
 
 					nhanVienDAO.updateNV(currentForgotPasswordNV);
@@ -422,33 +414,39 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 	 * Handle login action
 	 */
 	private void handleLogin() {
+		String maNV = txtMaNV.getText().trim();
+		@SuppressWarnings("deprecation")
+		String password = txtMatKhau.getText().trim();
+
+		if (maNV.isEmpty() || password.isEmpty()) {
+			Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
+					"Tên đăng nhập và mật khẩu không được để trống");
+			return;
+		}
+
 		try {
-			String maNV = txtMaNV.getText().trim();
+			boolean ketQua = nhanVienDAO.checkDangNhap(maNV, password);
 
-			@SuppressWarnings("deprecation")
-			String password = txtMatKhau.getText().trim();
-
-			if (isPasswordValid(maNV, password)) {
-				boolean ketQua = nhanVienDAO.checkDangNhap(maNV, password);
-
-				if (ketQua) {
-					setLoggedInEmployeeID(maNV);
-					if (listener != null) {
-						listener.onLogin(maNV);
-					}
-					Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
-							"Đăng nhập thành công");
-					dispose();
-				} else {
-					Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
-							"Sai tên đăng nhập hoặc mật khẩu");
-					txtMaNV.setBorder(
-							BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 3, true),
-									BorderFactory.createEmptyBorder(0, 50, 0, 0)));
-					txtMatKhau.setBorder(
-							BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 3, true),
-									BorderFactory.createEmptyBorder(0, 50, 0, 0)));
+			if (ketQua) {
+				setLoggedInEmployeeID(maNV);
+				if (listener != null) {
+					listener.onLogin(maNV);
 				}
+				Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.BOTTOM_RIGHT,
+						"Đăng nhập thành công");
+				dispose();
+			} else {
+				Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
+						"Sai tên đăng nhập hoặc mật khẩu");
+
+				// Show red border
+				txtMaNV.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 3, true),
+						BorderFactory.createEmptyBorder(0, 50, 0, 0)));
+
+				txtMatKhau.setBorder(
+						BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.RED, 3, true),
+								BorderFactory.createEmptyBorder(0, 50, 0, 0)));
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -457,7 +455,7 @@ public class DangNhapGUI extends JFrame implements ActionListener {
 		}
 	}
 
-	private boolean isPasswordValid(String maNV, String password) {
+	public boolean isPasswordValid(String maNV, String password) {
 		if (!maNV.matches("NV\\d{3}")) {
 			Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.BOTTOM_RIGHT,
 					"Mã nhân viên phải có dạng NVXXX");

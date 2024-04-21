@@ -8,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 
 /**
  * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
@@ -16,7 +15,6 @@ import jakarta.persistence.Table;
  * @created 06-Nov-2023 4:14:29 PM
  */
 @Entity
-@Table(name = "PhieuDatPhong")
 public class PhieuDatPhong implements Serializable {
 
 	/**

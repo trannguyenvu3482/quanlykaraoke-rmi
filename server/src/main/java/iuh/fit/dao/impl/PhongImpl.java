@@ -6,7 +6,6 @@ package iuh.fit.dao.impl;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -112,7 +111,7 @@ public class PhongImpl extends UnicastRemoteObject implements PhongDAO, Serializ
 		} catch (Exception e) {
 			System.out.println("ROLLBACK!");
 			t.rollback();
-			return new ArrayList<Phong>();
+			return listPhong;
 		}
 	}
 
@@ -147,7 +146,7 @@ public class PhongImpl extends UnicastRemoteObject implements PhongDAO, Serializ
 							"update Phong set maLoaiPhong = '" + phong.getLoaiPhong().getMaLoaiPhong()
 									+ "',trangThai = " + tt + " where maPhong = '" + phong.getMaPhong() + "'",
 							Phong.class);
-			int p = qr.executeUpdate();
+			qr.executeUpdate();
 
 			t.commit();
 			return true;
