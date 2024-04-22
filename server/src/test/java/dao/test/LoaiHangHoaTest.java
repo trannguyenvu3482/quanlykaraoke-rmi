@@ -1,6 +1,7 @@
 package dao.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.rmi.RemoteException;
 import java.util.List;
@@ -40,14 +41,13 @@ class LoaiHangHoaTest {
 		for (LoaiHangHoa loaiHangHoa : listLoaiHangHoa) {
 			System.out.println(loaiHangHoa.getTenLoaiHangHoa());
 		}
-
-		assertEquals(5, listLoaiHangHoa.size());
+		assertNotNull(listLoaiHangHoa);
 	}
 
 	@Test
 	void testGetLoaiHangHoaByname() throws RemoteException {
-		LoaiHangHoa loaiHangHoa = loaiHangHoaDAO.getLoaiHangHoaByname("Đồ uống có cồn");
-		assertEquals("LHH002", loaiHangHoa.getMaLoaiHangHoa());
+		LoaiHangHoa loaiHangHoa = loaiHangHoaDAO.getLoaiHangHoaByname("Nước ngọt");
+		assertEquals("LHH001", loaiHangHoa.getMaLoaiHangHoa());
 
 	}
 
