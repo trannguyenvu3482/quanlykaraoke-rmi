@@ -324,6 +324,7 @@ public class PhieuDatPhongImpl extends UnicastRemoteObject implements PhieuDatPh
 		}
 	}
 
+	// FIXME: Fix this
 	public boolean changeRoomForPhieuDatPhong(String currentMaPhong, String moveToMaPhong) {
 		Session session = factory.getCurrentSession();
 		Transaction t = session.beginTransaction();

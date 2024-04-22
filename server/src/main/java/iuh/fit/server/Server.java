@@ -42,7 +42,6 @@ import iuh.fit.util.PasswordUtil;
 public class Server {
 	private static final String URL = "rmi://localhost:8001/";
 
-	@SuppressWarnings("removal")
 	public static void main(String[] args) {
 		try {
 			// Start hibernate

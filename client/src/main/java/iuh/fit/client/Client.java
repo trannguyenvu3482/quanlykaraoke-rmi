@@ -112,26 +112,31 @@ public class Client {
 				// Add listener for login
 				loginGUI.setLoginListener(userId -> {
 					if (userId != null) {
+						NhanVienDAO nvDAO = (NhanVienDAO) Client.getDAO("NhanVienDAO");
 
 						// Login success, show main window
-						if (userId.equals("NV001")) {
-							QuanLyGUI main;
-							try {
-								main = new QuanLyGUI(userId);
-								main.setLogoutListener(() -> showLoginScreen());
-								main.setVisible(true);
-							} catch (RemoteException e1) {
-								e1.printStackTrace();
+						try {
+							if (nvDAO.getNhanVien(userId).getChucVu().getMaChucVu().equals("CV001")) {
+								QuanLyGUI main;
+								try {
+									main = new QuanLyGUI(userId);
+									main.setLogoutListener(() -> showLoginScreen());
+									main.setVisible(true);
+								} catch (RemoteException e1) {
+									e1.printStackTrace();
+								}
+							} else {
+								NhanVienGUI main;
+								try {
+									main = new NhanVienGUI(userId);
+									main.setLogoutListener(() -> showLoginScreen());
+									main.setVisible(true);
+								} catch (RemoteException e1) {
+									e1.printStackTrace();
+								}
 							}
-						} else {
-							NhanVienGUI main;
-							try {
-								main = new NhanVienGUI(userId);
-								main.setLogoutListener(() -> showLoginScreen());
-								main.setVisible(true);
-							} catch (RemoteException e1) {
-								e1.printStackTrace();
-							}
+						} catch (RemoteException e1) {
+							e1.printStackTrace();
 						}
 					}
 				});
