@@ -29,7 +29,7 @@ class KhachHangTest {
 
 	@Test
 	void testAddKhachHang() throws RemoteException {
-		KhachHang kh = new KhachHang("KH016", "Lê Văn A", "0869582145", "079205098536");
+		KhachHang kh = new KhachHang("KH075", "Lê Văn A", "0869582145", "079205098536");
 		boolean result = khachHangDAO.addKhachHang(kh);
 		assertEquals(true, result);
 
@@ -62,7 +62,7 @@ class KhachHangTest {
 
 		System.out.println(kh);
 
-		assertEquals("KH016", kh.getMaKhachHang());
+		assertEquals("Lê Văn A", kh.getHoTen());
 
 	}
 

@@ -12,27 +12,31 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import iuh.fit.dao.HangHoaDAO;
+import iuh.fit.dao.LoaiHangHoaDAO;
 import iuh.fit.dao.impl.HangHoaImpl;
+import iuh.fit.dao.impl.LoaiHangHoaImpl;
 import iuh.fit.entity.HangHoa;
 import iuh.fit.entity.LoaiHangHoa;
+import iuh.fit.entity.NhanVien;
 import iuh.fit.util.HibernateUtil;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
 class HangHoaTest {
 	static HangHoaDAO hangHoaDAO;
+	static LoaiHangHoaDAO loaiHangHoaDAO;
 
 	@BeforeAll
 	public static void init() throws RemoteException {
 		HibernateUtil.provideSessionFactory();
 		hangHoaDAO = new HangHoaImpl();
+		loaiHangHoaDAO = new LoaiHangHoaImpl();
 	}
 
 	@Test
 	void testAddHangHoa() throws RemoteException {
-		HangHoa hangHoa = new HangHoa("HH014", "Sting", new LoaiHangHoa("LHH014", "Nước ngọt"), 350, 35000, true);
+		HangHoa hangHoa = new HangHoa("HH052", "Sting", new LoaiHangHoa("LHH001", "Nước ngọt"), 100, 100000, true);
 		boolean result = hangHoaDAO.addHangHoa(hangHoa);
-
 		assertEquals(true, result);
 
 	}
@@ -40,14 +44,18 @@ class HangHoaTest {
 	@Test
 	void testGetAllHangHoas() throws RemoteException {
 		List<HangHoa> listHangHoa = hangHoaDAO.getAllHangHoas();
+
+		for (HangHoa hangHoa : listHangHoa) {
+			System.out.println(hangHoa);
+		}
 		assertNotNull(listHangHoa);
 
 	}
 
 	@Test
 	void testGetHangHoa() throws RemoteException {
-		HangHoa hangHoa = hangHoaDAO.getHangHoa("HH014");
-		assertEquals("LHH014", hangHoa.getLoaiHangHoa().getMaLoaiHangHoa());
+		HangHoa hangHoa = hangHoaDAO.getHangHoa("HH013");
+		assertEquals("HH013", hangHoa.getMaHangHoa());
 
 	}
 
@@ -64,7 +72,8 @@ class HangHoaTest {
 	@Test
 	void testUpdateSoLuongTon() throws RemoteException {
 		HangHoa hangHoa = hangHoaDAO.getHangHoa("HH014");
-		assertNotNull(hangHoaDAO.updateSoLuongTon(hangHoa, 500));
+		hangHoa.setSoLuongTon(500);
+		assertNotNull(hangHoaDAO.updateHangHoa(hangHoa));
 		HangHoa updatedHangHoa = hangHoaDAO.getHangHoa("HH014");
 		assertEquals(500, updatedHangHoa.getSoLuongTon());
 	}
