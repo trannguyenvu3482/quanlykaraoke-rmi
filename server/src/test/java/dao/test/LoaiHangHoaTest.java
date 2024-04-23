@@ -29,7 +29,7 @@ class LoaiHangHoaTest {
 
 	@Test
 	void testAddLoaiHangHoa() throws RemoteException {
-		LoaiHangHoa loaiHangHoa = new LoaiHangHoa("", "Đồ uống có cồn", "Lon/Chai");
+		LoaiHangHoa loaiHangHoa = new LoaiHangHoa("", "Thức ăn nhanh", "Phần");
 		boolean result = loaiHangHoaDAO.addLoaiHangHoa(loaiHangHoa);
 		assertEquals(true, result);
 	}

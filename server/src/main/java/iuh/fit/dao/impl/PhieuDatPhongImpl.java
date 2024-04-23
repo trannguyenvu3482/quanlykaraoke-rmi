@@ -331,16 +331,25 @@ public class PhieuDatPhongImpl extends UnicastRemoteObject implements PhieuDatPh
 
 		try {
 			// Handle PhieuDatPhong
-			Query<ChiTietPhieuDatPhong> query3 = session.createNativeQuery("SELECT * FROM ChiTietPhieuDatPhong",
-					ChiTietPhieuDatPhong.class);
+			Query<ChiTietPhieuDatPhong> query = session.createQuery(
+					"FROM ChiTietPhieuDatPhong WHERE maPhong = :currentMaPhong", ChiTietPhieuDatPhong.class);
+			query.setParameter("currentMaPhong", currentMaPhong);
 
-			ChiTietPhieuDatPhong ctpdp = query3.getSingleResult();
+			ChiTietPhieuDatPhong ctpdp = query.getSingleResult();
 			ctpdp.setThoiGianKetThuc(LocalDateTime.now());
 			session.merge(ctpdp);
 
-			PhieuDatPhong pdp = ctpdp.getPhieuDatPhong();
-			pdp.setTrangThai(true);
-			session.merge(pdp);
+			ChiTietPhieuDatPhong newCtpdp = new ChiTietPhieuDatPhong();
+			newCtpdp.setThoiGianBatDau(LocalDateTime.now());
+
+			// Get Phong
+			Query<Phong> query2 = session.createQuery("FROM Phong WHERE maPhong = :moveToMaPhong", Phong.class);
+			query2.setParameter("moveToMaPhong", moveToMaPhong);
+			newCtpdp.setPhong(query2.getSingleResult());
+			newCtpdp.setPhieuDatPhong(ctpdp.getPhieuDatPhong());
+			session.persist(newCtpdp);
+
+			session.merge(newCtpdp);
 
 			// Finish
 			t.commit();

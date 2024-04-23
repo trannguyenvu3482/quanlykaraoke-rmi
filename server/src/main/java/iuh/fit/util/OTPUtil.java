@@ -17,17 +17,13 @@ import io.github.cdimascio.dotenv.Dotenv;
  */
 public class OTPUtil extends UnicastRemoteObject implements OTPService {
 
+	private static final Dotenv dotenv = Dotenv.configure().directory(".").load();
 	private static final long serialVersionUID = 1L;
-	private String accountSID = "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
-	private String authToken = "your_auth_token";
+	private final String accountSID = dotenv.get("TWILIO_ACCOUNT_SID");
+	private final String authToken = dotenv.get("TWILIO_AUTH_TOKEN");
 	private HashMap<String, String> OTPMap = new HashMap<>();
 
 	public OTPUtil() throws RemoteException {
-		Dotenv dotenv = Dotenv.configure().directory(".").load();
-
-		accountSID = dotenv.get("TWILIO_ACCOUNT_SID");
-		authToken = dotenv.get("TWILIO_AUTH_TOKEN");
-
 		OTPMap = new HashMap<>();
 	}
 

@@ -16,8 +16,6 @@ import iuh.fit.dao.LoaiHangHoaDAO;
 import iuh.fit.dao.impl.HangHoaImpl;
 import iuh.fit.dao.impl.LoaiHangHoaImpl;
 import iuh.fit.entity.HangHoa;
-import iuh.fit.entity.LoaiHangHoa;
-import iuh.fit.entity.NhanVien;
 import iuh.fit.util.HibernateUtil;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -35,10 +33,9 @@ class HangHoaTest {
 
 	@Test
 	void testAddHangHoa() throws RemoteException {
-		HangHoa hangHoa = new HangHoa("HH052", "Sting", new LoaiHangHoa("LHH001", "Nước ngọt"), 100, 100000, true);
+		HangHoa hangHoa = new HangHoa("", "Sting", loaiHangHoaDAO.getLoaiHangHoaByname("Nước ngọt"), 100, 100000, true);
 		boolean result = hangHoaDAO.addHangHoa(hangHoa);
 		assertEquals(true, result);
-
 	}
 
 	@Test
