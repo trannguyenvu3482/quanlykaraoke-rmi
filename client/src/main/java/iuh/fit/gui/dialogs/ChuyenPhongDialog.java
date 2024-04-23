@@ -45,8 +45,8 @@ public class ChuyenPhongDialog extends JDialog {
 
 	// VARIABLES
 	private Phong p;
-	private final PhongDAO pDAO = (PhongDAO) Client.getDAO("PhongDAO");
-	private final PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
+	private final transient PhongDAO pDAO = (PhongDAO) Client.getDAO("PhongDAO");
+	private final transient PhieuDatPhongDAO pdpDAO = (PhieuDatPhongDAO) Client.getDAO("PhieuDatPhongDAO");
 
 	/**
 	 * 
