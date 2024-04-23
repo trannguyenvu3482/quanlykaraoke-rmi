@@ -197,7 +197,7 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener 
 		yearChooser.setPreferredSize(new Dimension(100, 46));
 		yearChooser.setLocale(new Locale("vi", "VN"));
 		yearChooser.setFont(new Font("Dialog", Font.PLAIN, 18));
-		yearChooser.setEndYear(2023);
+		yearChooser.setEndYear(2024);
 		filtersNam.add(yearChooser);
 
 		Component horizontalStrut_2 = Box.createHorizontalStrut(20);

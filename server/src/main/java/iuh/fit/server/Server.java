@@ -40,7 +40,7 @@ import iuh.fit.util.PasswordUtil;
  * @created 18 Apr 2024 - 1:31:25 pm
  */
 public class Server {
-	private static final String URL = "rmi://localhost:8001/";
+	private static final String URL = "rmi://DUZ-PC:8001/";
 
 	public static void main(String[] args) {
 		try {

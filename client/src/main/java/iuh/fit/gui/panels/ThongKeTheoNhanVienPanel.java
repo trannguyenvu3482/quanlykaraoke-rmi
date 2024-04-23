@@ -199,6 +199,7 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 		yearChooser.setLocale(new Locale("vi", "VN"));
 		yearChooser.setFont(new Font("Dialog", Font.PLAIN, 18));
 		yearChooser.setEndYear(2024);
+
 		filtersNam.add(yearChooser);
 
 		Component horizontalStrut_2 = Box.createHorizontalStrut(20);
