@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.Timer;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 10-Oct-2023 16:36:00
  */

@@ -67,7 +67,7 @@ import raven.toast.Notifications.Location;
 import raven.toast.Notifications.Type;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 08-Nov-2023 2:54:49 PM
  */
@@ -375,21 +375,21 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener 
 			}
 		});
 
-//		monthChooser.addPropertyChangeListener(evt -> {
-//			if (evt.getPropertyName().equals("month")) {
-//				isInputValid = true;
-//			} else {
-//				isInputValid = false;
-//			}
-//		});
-//
-//		yearChooser.addPropertyChangeListener(evt -> {
-//			if (evt.getPropertyName().equals("year")) {
-//				isInputValid = true;
-//			} else {
-//				isInputValid = false;
-//			}
-//		});
+		// monthChooser.addPropertyChangeListener(evt -> {
+		// if (evt.getPropertyName().equals("month")) {
+		// isInputValid = true;
+		// } else {
+		// isInputValid = false;
+		// }
+		// });
+		//
+		// yearChooser.addPropertyChangeListener(evt -> {
+		// if (evt.getPropertyName().equals("year")) {
+		// isInputValid = true;
+		// } else {
+		// isInputValid = false;
+		// }
+		// });
 
 		// Handle search
 		txtSearch.addKeyListener(new KeyAdapter() {

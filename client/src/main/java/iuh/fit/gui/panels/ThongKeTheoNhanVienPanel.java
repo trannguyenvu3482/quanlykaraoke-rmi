@@ -67,7 +67,7 @@ import raven.toast.Notifications.Location;
 import raven.toast.Notifications.Type;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 08-Nov-2023 2:54:49 PM
  */
@@ -198,7 +198,7 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 		yearChooser.setPreferredSize(new Dimension(100, 46));
 		yearChooser.setLocale(new Locale("vi", "VN"));
 		yearChooser.setFont(new Font("Dialog", Font.PLAIN, 18));
-		yearChooser.setEndYear(2023);
+		yearChooser.setEndYear(2024);
 		filtersNam.add(yearChooser);
 
 		Component horizontalStrut_2 = Box.createHorizontalStrut(20);
@@ -376,21 +376,21 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
 			}
 		});
 
-//		monthChooser.addPropertyChangeListener(evt -> {
-//			if (evt.getPropertyName().equals("month")) {
-//				isInputValid = true;
-//			} else {
-//				isInputValid = false;
-//			}
-//		});
-//
-//		yearChooser.addPropertyChangeListener(evt -> {
-//			if (evt.getPropertyName().equals("year")) {
-//				isInputValid = true;
-//			} else {
-//				isInputValid = false;
-//			}
-//		});
+		// monthChooser.addPropertyChangeListener(evt -> {
+		// if (evt.getPropertyName().equals("month")) {
+		// isInputValid = true;
+		// } else {
+		// isInputValid = false;
+		// }
+		// });
+		//
+		// yearChooser.addPropertyChangeListener(evt -> {
+		// if (evt.getPropertyName().equals("year")) {
+		// isInputValid = true;
+		// } else {
+		// isInputValid = false;
+		// }
+		// });
 
 		// Handle search
 		txtSearch.addKeyListener(new KeyAdapter() {

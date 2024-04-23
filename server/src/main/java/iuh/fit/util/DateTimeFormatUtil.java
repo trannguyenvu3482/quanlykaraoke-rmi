@@ -10,11 +10,12 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 13-Nov-2023 1:40:49 PM
  */
 public class DateTimeFormatUtil {
+
 	public static String formatFullDate(LocalDateTime time) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:m:s - d/M/yyyy ", new Locale("vi", "VN"));
 		return time.format(formatter);
@@ -37,13 +38,11 @@ public class DateTimeFormatUtil {
 	}
 
 	public static Date formatLocalDateToDate(LocalDate date) {
-		
+
 		return Date.from(date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 	public static LocalDate formatDateToLocalDate(Date dateToConvert) {
-		return dateToConvert.toInstant()
-				.atZone(ZoneId.systemDefault())
-				.toLocalDate();
+		return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 }

@@ -100,11 +100,10 @@ public class KhachHangImpl extends UnicastRemoteObject implements KhachHangDAO, 
 		Transaction t = session.beginTransaction();
 
 		try {
-			Query<KhachHang> query = session
-					.createNativeQuery("SELECT * FROM KhachHang WHERE soDienThoai = " + sdt, KhachHang.class);
+			Query<KhachHang> query = session.createNativeQuery("SELECT * FROM KhachHang WHERE soDienThoai = " + sdt,
+					KhachHang.class);
 
-			@SuppressWarnings("deprecation")
-			KhachHang kh = (KhachHang) query.getResultList().get(0);
+			KhachHang kh = query.getResultList().get(0);
 
 			t.commit();
 			return kh;
@@ -157,5 +156,5 @@ public class KhachHangImpl extends UnicastRemoteObject implements KhachHangDAO, 
 			return -1;
 		}
 	}
-	
+
 }

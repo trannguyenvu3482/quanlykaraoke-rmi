@@ -17,7 +17,7 @@ import javax.swing.SwingConstants;
 /**
  * Màn hình chờ khi load ứng dụng
  * 
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 25-Oct-2023 14:51:00
  */

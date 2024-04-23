@@ -1,5 +1,5 @@
 /**
-` * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+` * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created Nov 3, 2023 2:51:22 PM
  */
@@ -55,7 +55,7 @@ import raven.toast.Notifications.Type;
 /**
  * Màn hình quản lý phiếu đặt phòng
  *
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 25-Oct-2023 16:39:00
  */

@@ -6,7 +6,7 @@ import java.util.Objects;
 import jakarta.persistence.Embeddable;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 08-Nov-2023 11:29:57 PM
  */

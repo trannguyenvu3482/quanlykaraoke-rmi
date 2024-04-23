@@ -38,7 +38,7 @@ import iuh.fit.common.MyIcon;
 import iuh.fit.util.ConstantUtil;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 01-Dec-2023 2:34:29 AM
  */

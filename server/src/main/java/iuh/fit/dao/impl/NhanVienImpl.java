@@ -113,35 +113,14 @@ public class NhanVienImpl extends UnicastRemoteObject implements NhanVienDAO, Se
 		}
 	}
 
-//	public boolean checkDangNhap(String maNV, String password) {
-//		Session session = factory.getCurrentSession();
-//		Transaction t = session.beginTransaction();
-//
-//		try {
-//			NhanVien nv = session.get(NhanVien.class, maNV);
-//
-//			if (nv != null) {
-//				t.commit();
-//				return PasswordUtil.check(password, nv.getMatKhau());
-//			} else {
-//				t.rollback();
-//				return false;
-//			}
-//		} catch (Exception e) {
-//			t.rollback();
-//			return false;
-//		}
-//	}
-
 	public boolean updateMatKhauNhanVien(NhanVien nhanVien) {
 		Session session = factory.getCurrentSession();
 		Transaction t = session.beginTransaction();
 
 		try {
-			int tt = nhanVien.isTrangThai() ? 1 : 0;
 			Query<NhanVien> qr = session.createNativeQuery("update NhanVien set matKhau = '" + nhanVien.getMatKhau()
 					+ "' where maNhanVien = '" + nhanVien.getMaNhanVien() + "'", NhanVien.class);
-			int hh = qr.executeUpdate();
+			qr.executeUpdate();
 			t.commit();
 			return true;
 
@@ -158,7 +137,7 @@ public class NhanVienImpl extends UnicastRemoteObject implements NhanVienDAO, Se
 		try {
 			NhanVien updatedNV = session.merge(nv);
 			t.commit();
-			return nv;
+			return updatedNV;
 
 		} catch (Exception e) {
 			t.rollback();

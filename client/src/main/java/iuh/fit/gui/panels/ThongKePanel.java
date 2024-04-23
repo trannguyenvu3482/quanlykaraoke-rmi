@@ -57,7 +57,7 @@ import raven.toast.Notifications.Location;
 import raven.toast.Notifications.Type;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 07-Nov-2023 1:18:03 PM
  */
@@ -563,22 +563,22 @@ public class ThongKePanel extends JPanel implements ActionListener {
 		return dataset;
 	}
 
-//	private static CategoryDataset createDataset() {
-//
-//		dataset.addValue(1000000, "Doanh thu", "Tháng 1");
-//		dataset.addValue(1000000, "Doanh thu", "Tháng 2");
-//		dataset.addValue(1000000, "Doanh thu", "Tháng 3");
-//		dataset.addValue(800000, "Doanh thu", "Tháng 4");
-//		dataset.addValue(1000000, "Doanh thu", "Tháng 5");
-//		dataset.addValue(1000000, "Doanh thu", "Tháng 6");
-//		dataset.addValue(1200000, "Doanh thu", "Tháng 7");
-//		dataset.addValue(1400000, "Doanh thu", "Tháng 8");
-//		dataset.addValue(2000000, "Doanh thu", "Tháng 9");
-//		dataset.addValue(3000000, "Doanh thu", "Tháng 10");
-//		dataset.addValue(5500000, "Doanh thu", "Tháng 11");
-//		dataset.addValue(12000000, "Doanh thu", "Tháng 12");
-//		return dataset;
-//	}
+	// private static CategoryDataset createDataset() {
+	//
+	// dataset.addValue(1000000, "Doanh thu", "Tháng 1");
+	// dataset.addValue(1000000, "Doanh thu", "Tháng 2");
+	// dataset.addValue(1000000, "Doanh thu", "Tháng 3");
+	// dataset.addValue(800000, "Doanh thu", "Tháng 4");
+	// dataset.addValue(1000000, "Doanh thu", "Tháng 5");
+	// dataset.addValue(1000000, "Doanh thu", "Tháng 6");
+	// dataset.addValue(1200000, "Doanh thu", "Tháng 7");
+	// dataset.addValue(1400000, "Doanh thu", "Tháng 8");
+	// dataset.addValue(2000000, "Doanh thu", "Tháng 9");
+	// dataset.addValue(3000000, "Doanh thu", "Tháng 10");
+	// dataset.addValue(5500000, "Doanh thu", "Tháng 11");
+	// dataset.addValue(12000000, "Doanh thu", "Tháng 12");
+	// return dataset;
+	// }
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

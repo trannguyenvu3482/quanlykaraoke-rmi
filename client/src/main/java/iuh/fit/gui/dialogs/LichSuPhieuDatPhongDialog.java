@@ -21,7 +21,7 @@ import iuh.fit.client.Client;
 import iuh.fit.dao.PhieuDatPhongDAO;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 14-Nov-2023 12:30:32 AM
  */

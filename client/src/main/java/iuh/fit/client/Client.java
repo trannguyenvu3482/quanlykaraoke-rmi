@@ -120,7 +120,7 @@ public class Client {
 								QuanLyGUI main;
 								try {
 									main = new QuanLyGUI(userId);
-									main.setLogoutListener(() -> showLoginScreen());
+									main.setLogoutListener(Client::showLoginScreen);
 									main.setVisible(true);
 								} catch (RemoteException e1) {
 									e1.printStackTrace();
@@ -129,7 +129,7 @@ public class Client {
 								NhanVienGUI main;
 								try {
 									main = new NhanVienGUI(userId);
-									main.setLogoutListener(() -> showLoginScreen());
+									main.setLogoutListener(Client::showLoginScreen);
 									main.setVisible(true);
 								} catch (RemoteException e1) {
 									e1.printStackTrace();
@@ -170,38 +170,48 @@ public class Client {
 	}
 
 	private static void showLoginScreen() {
-		DangNhapGUI login = null;
 		try {
-			login = new DangNhapGUI();
-			login.setLoginListener(id -> {
-				if (id != null) {
-					if (id.equals("NV001")) {
-						QuanLyGUI main;
-						try {
-							main = new QuanLyGUI(id);
-							main.setLogoutListener(() -> showLoginScreen());
-							main.setVisible(true);
-						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					} else {
-						NhanVienGUI main;
-						try {
-							main = new NhanVienGUI(id);
-							main.setLogoutListener(() -> showLoginScreen());
-							main.setVisible(true);
-						} catch (RemoteException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			});
+			DangNhapGUI login = new DangNhapGUI();
+			NhanVienDAO nvDAO = (NhanVienDAO) Client.getDAO("NhanVienDAO");
 
+			login.setLoginListener(id -> handleLogin(id, nvDAO));
 			login.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
 
+	private static void handleLogin(String id, NhanVienDAO nvDAO) {
+		if (id != null) {
+			try {
+				if (nvDAO.getNhanVien(id).getChucVu().getMaChucVu().equals("CV001")) {
+					setupQuanLyGUI(id);
+				} else {
+					setupNhanVienGUI(id);
+				}
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private static void setupQuanLyGUI(String id) {
+		try {
+			QuanLyGUI main = new QuanLyGUI(id);
+			main.setLogoutListener(Client::showLoginScreen);
+			main.setVisible(true);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void setupNhanVienGUI(String id) {
+		try {
+			NhanVienGUI main = new NhanVienGUI(id);
+			main.setLogoutListener(Client::showLoginScreen);
+			main.setVisible(true);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	}
 }

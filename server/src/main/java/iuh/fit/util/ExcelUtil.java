@@ -23,7 +23,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import iuh.fit.entity.HangHoa;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 08-Dec-2023 6:32:31 PM
  */
@@ -49,7 +49,7 @@ public class ExcelUtil {
 	public static void writeExcel(List<String> listTableTitles, List<? extends Object> listData, String excelFilePath)
 			throws IOException {
 		ExcelUtil.listTableTitles = listTableTitles;
-		ExcelUtil.listData = listData;
+		ExcelUtil.setListData(listData);
 
 		// Create Workbook
 		Workbook workbook = getWorkbook(excelFilePath);
@@ -214,5 +214,19 @@ public class ExcelUtil {
 		try (OutputStream os = new FileOutputStream(excelFilePath)) {
 			workbook.write(os);
 		}
+	}
+
+	/**
+	 * @return the listData
+	 */
+	public static List<? extends Object> getListData() {
+		return listData;
+	}
+
+	/**
+	 * @param listData the listData to set
+	 */
+	public static void setListData(List<? extends Object> listData) {
+		ExcelUtil.listData = listData;
 	}
 }

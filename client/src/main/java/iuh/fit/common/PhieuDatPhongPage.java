@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Một list các trang của phiếu đặt phòng.
  *
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 03-Nov-2023 12:41:53 PM
  */

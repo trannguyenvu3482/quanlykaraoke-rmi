@@ -31,7 +31,7 @@ import raven.toast.Notifications;
 import raven.toast.Notifications.Location;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 05-Nov-2023 11:50:53 PM
  */

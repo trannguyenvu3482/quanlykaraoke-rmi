@@ -3,7 +3,7 @@ package iuh.fit.util;
 import org.mindrot.jbcrypt.BCrypt;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 10-Oct-2023 15:20:00
  */

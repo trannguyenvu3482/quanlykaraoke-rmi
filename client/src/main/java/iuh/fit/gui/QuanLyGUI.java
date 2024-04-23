@@ -65,7 +65,7 @@ import raven.toast.Notifications;
  * 
  * Màn hình nhân viên
  * 
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 17-Oct-2023 22:13:00
  */
@@ -367,7 +367,7 @@ public class QuanLyGUI extends MyFrame implements ActionListener {
 		btnSend.setFont(new Font("Tahoma", Font.PLAIN, 42));
 		btnSend.addActionListener(this);
 		clock.startClock();
-//		startWorkTimer();
+		// startWorkTimer();
 
 		// Handle key presser
 		this.addKeyListener(new KeyAdapter() {

@@ -15,7 +15,7 @@ import iuh.fit.entity.PhieuDatPhong;
 import iuh.fit.entity.Phong;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 10-Oct-2023 13:36:00
  */
@@ -28,10 +28,10 @@ public class HibernateUtil {
 		config.configure("hibernate.cfg.xml");
 
 		// Get env vars
-//		Dotenv dotenv = Dotenv.configure().directory(".").load();
-//		String url = dotenv.get("DB_URL");
-//		String username = dotenv.get("DB_USERNAME");
-//		String password = dotenv.get("DB_PASSWORD");
+		// Dotenv dotenv = Dotenv.configure().directory(".").load();
+		// String url = dotenv.get("DB_URL");
+		// String username = dotenv.get("DB_USERNAME");
+		// String password = dotenv.get("DB_PASSWORD");
 
 		String url = "jdbc:sqlserver://localhost:1433;databaseName=quanlykaraoke;encrypt=false;trustServerCertificates=true";
 		String username = "sa";

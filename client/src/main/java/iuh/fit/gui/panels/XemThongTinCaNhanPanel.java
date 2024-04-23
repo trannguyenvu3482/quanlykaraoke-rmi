@@ -44,7 +44,7 @@ import iuh.fit.util.PasswordUtil;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 06-Nov-2023 4:16:05 PM
  */
@@ -121,7 +121,8 @@ public class XemThongTinCaNhanPanel extends JPanel implements ActionListener {
 
 			// Display circular image
 			avatar = new ImageIcon(bi.getScaledInstance(200, 200, Image.SCALE_SMOOTH));
-//					avatar.setImage(avatar.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH));
+			// avatar.setImage(avatar.getImage().getScaledInstance(200, 200,
+			// Image.SCALE_SMOOTH));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

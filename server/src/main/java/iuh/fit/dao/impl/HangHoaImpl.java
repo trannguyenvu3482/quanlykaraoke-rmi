@@ -23,10 +23,10 @@ public class HangHoaImpl extends UnicastRemoteObject implements HangHoaDAO, Seri
 	/**
 	 * 
 	 */
-	
+
 	private SessionFactory factory = null;
 
-	public HangHoaImpl() throws  RemoteException {
+	public HangHoaImpl() throws RemoteException {
 		factory = HibernateUtil.getMySessionFactory();
 	}
 
@@ -116,7 +116,7 @@ public class HangHoaImpl extends UnicastRemoteObject implements HangHoaDAO, Seri
 					+ "' ,maLoaiHangHoa = '" + hangHoa.getLoaiHangHoa().getMaLoaiHangHoa() + "' ,donGia = "
 					+ hangHoa.getDonGia() + " ,soLuongTon = " + hangHoa.getSoLuongTon() + " ,trangThai = " + tt
 					+ " where maHangHoa = '" + hangHoa.getMaHangHoa() + "'", HangHoa.class);
-			int hh = qr.executeUpdate();
+			qr.executeUpdate();
 			t.commit();
 			return true;
 
@@ -131,12 +131,11 @@ public class HangHoaImpl extends UnicastRemoteObject implements HangHoaDAO, Seri
 		Transaction t = session.beginTransaction();
 
 		try {
-			int tt = hangHoa.isTrangThai() ? 1 : 0;
 			int slt = hangHoa.getSoLuongTon() + sl;
 			Query<HangHoa> qr = session.createNativeQuery(
 					"update HangHoa set soLuongTon = " + slt + " where maHangHoa = '" + hangHoa.getMaHangHoa() + "'",
 					HangHoa.class);
-			int hh = qr.executeUpdate();
+			qr.executeUpdate();
 			t.commit();
 			return true;
 

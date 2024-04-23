@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 13-Nov-2023 1:40:49 PM
  */

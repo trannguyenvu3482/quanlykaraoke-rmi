@@ -55,7 +55,7 @@ import iuh.fit.util.MoneyFormatUtil;
 import raven.toast.Notifications;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 13-Nov-2023 10:39:28 AM
  */

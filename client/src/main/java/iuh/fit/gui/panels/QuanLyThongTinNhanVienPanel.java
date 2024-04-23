@@ -65,7 +65,7 @@ import raven.toast.Notifications.Location;
 import raven.toast.Notifications.Type;
 
 /**
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 07-Nov-2023 1:48:14 AM
  */
@@ -616,11 +616,11 @@ public class QuanLyThongTinNhanVienPanel extends JPanel implements ActionListene
 									txtNgaySinh.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
 									cvDAO.getChucVuByName(cbChucVu.getSelectedItem().toString()), txtSDT.getText(),
 									txtCCCD.getText(), nvDAO.getNhanVien(maNV).getAnhDaiDien(),
-									cbTrangThai.getSelectedIndex() == 1 ? true : false);
+									cbTrangThai.getSelectedIndex() == 1);
 
 							if (checkTonTai(nv, ls)) {
 								nvDAO.updateNV(nv);
-								refreshTable(ls);
+								refreshTable(nvDAO.getAllNhanViens());
 								clearFields();
 								Notifications.getInstance().show(Type.SUCCESS, Location.BOTTOM_RIGHT,
 										"Cập nhật thành công!");

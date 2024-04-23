@@ -64,7 +64,7 @@ import raven.toast.Notifications;
  * 
  * Màn hình quản lý
  * 
- * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Trần Thanh Vy
+ * @author Trần Nguyên Vũ, Trần Ngọc Phát, Mai Nhật Hào, Lê Phước Nguyên
  * @version 1.0
  * @created 17-Oct-2023 22:13:00
  */
